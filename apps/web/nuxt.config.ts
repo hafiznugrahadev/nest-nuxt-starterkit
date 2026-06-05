@@ -52,6 +52,15 @@ export default defineNuxtConfig({
     ssr: {
       noExternal: ['zod', '@vee-validate/zod', 'vee-validate'],
     },
+    // In Docker on macOS/Windows, bind-mount file events don't reach the container,
+    // so HMR needs polling to detect edits. Enabled only when NUXT_DEV_POLLING=true
+    // (set by the dev compose) — local dev keeps native, CPU-friendly watching.
+    // The HMR websocket is served by Nuxt on the main dev port (already published),
+    // so no separate hmr port/host is configured here.
+    server:
+      process.env.NUXT_DEV_POLLING === 'true'
+        ? { watch: { usePolling: true, interval: 300 } }
+        : undefined,
   },
 
   // ── SPEC: Auto-import boundary strategy ──────────────────────────────────────

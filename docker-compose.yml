@@ -94,6 +94,9 @@ services:
       HOST: 0.0.0.0
       # Client-side calls hit the host-mapped API port.
       NUXT_PUBLIC_API_BASE: http://localhost:${API_PORT:-4400}/api
+      # Bind-mount file events don't cross into the container on macOS/Windows,
+      # so Vite must poll for HMR to work. See nuxt.config.ts.
+      NUXT_DEV_POLLING: 'true'
     ports:
       - '${WEB_PORT:-4300}:${WEB_PORT:-4300}'
     volumes:

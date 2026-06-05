@@ -164,11 +164,6 @@ const notImplemented = (provider: string) =>
       </Button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-muted-foreground">
-      Don't have an account?
-      <NuxtLink to="/register" class="font-medium text-primary hover:underline">Sign Up</NuxtLink>
-    </p>
-
     <div class="mt-6 rounded-xl border border-border bg-muted/50 px-4 py-3 text-center">
       <p class="text-xs text-muted-foreground">
         Demo credentials —
