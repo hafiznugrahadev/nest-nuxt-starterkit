@@ -1,4 +1,4 @@
-import type { ApiResponse, Paginated, PaginationMeta } from '@minisoccer/shared-types';
+import type { ApiResponse, Paginated, PaginationMeta } from '@starterkit/shared-types';
 
 export interface ApiClientOptions {
   baseURL: string;

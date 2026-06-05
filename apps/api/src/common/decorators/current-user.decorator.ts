@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { UserRole } from '@minisoccer/shared-types';
+import type { UserRole } from '@starterkit/shared-types';
 
 export interface AuthUser {
   id: string;

@@ -1,61 +1,38 @@
-import { PrismaClient } from '@prisma/client';
+import { config } from 'dotenv';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../src/generated/prisma/client';
 import { hashPassword } from '../src/common/utils/password';
 
-const prisma = new PrismaClient();
+// Single root .env (cwd = apps/api when run via `bun run --filter`). Env vars win.
+config({ path: ['../../.env', '.env'] });
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@minisoccer.test' },
+    where: { email: 'admin@starterkit.test' },
     update: {},
     create: {
-      email: 'admin@minisoccer.test',
+      email: 'admin@starterkit.test',
       name: 'Admin',
       password: await hashPassword('admin123'),
       role: 'ADMIN',
     },
   });
 
-  const customer = await prisma.user.upsert({
-    where: { email: 'customer@minisoccer.test' },
+  const user = await prisma.user.upsert({
+    where: { email: 'user@starterkit.test' },
     update: {},
     create: {
-      email: 'customer@minisoccer.test',
-      name: 'Budi Customer',
-      password: await hashPassword('customer123'),
-      role: 'CUSTOMER',
+      email: 'user@starterkit.test',
+      name: 'Regular User',
+      password: await hashPassword('user1234'),
+      role: 'USER',
     },
   });
 
-  const fields = await Promise.all(
-    [
-      { name: 'Lapangan A (Indoor)', type: 'INDOOR' as const, pricePerHour: 150000 },
-      { name: 'Lapangan B (Sintetis)', type: 'SYNTHETIC' as const, pricePerHour: 120000 },
-      { name: 'Lapangan C (Outdoor)', type: 'OUTDOOR' as const, pricePerHour: 90000 },
-    ].map((f) =>
-      prisma.field.create({
-        data: { ...f, description: `${f.name} — mini soccer 5v5` },
-      }),
-    ),
-  );
-
-  await prisma.booking.create({
-    data: {
-      fieldId: fields[0].id,
-      customerId: customer.id,
-      date: new Date('2026-06-10'),
-      startTime: '19:00',
-      endTime: '21:00',
-      status: 'CONFIRMED',
-      totalPrice: fields[0].pricePerHour * 2,
-      notes: 'Booking reguler',
-    },
-  });
-
-  console.log('Seed complete:', {
-    admin: admin.email,
-    customer: customer.email,
-    fields: fields.length,
-  });
+  console.log('Seed complete:', { admin: admin.email, user: user.email });
 }
 
 main()

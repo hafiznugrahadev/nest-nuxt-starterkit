@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import type { UserRole } from '@minisoccer/shared-types';
+import type { UserRole } from '@starterkit/shared-types';
 import type { AuthUser } from '@common/decorators/current-user.decorator';
 
 export interface JwtPayload {

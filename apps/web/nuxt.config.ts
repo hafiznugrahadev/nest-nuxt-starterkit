@@ -5,6 +5,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: true },
 
+  // Dev server port comes from the single root .env (WEB_PORT). In containers/prod
+  // the process `PORT` (set by compose) wins.
+  devServer: {
+    host: process.env.HOST || 'localhost',
+    port: Number(process.env.PORT || process.env.WEB_PORT) || 4300,
+  },
+
   // Nuxt 4: srcDir defaults to app/ (alias ~ → app/), matching the spec structure.
   modules: ['@pinia/nuxt', '@nuxt/eslint'],
 

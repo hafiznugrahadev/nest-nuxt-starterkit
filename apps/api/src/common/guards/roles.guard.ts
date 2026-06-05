@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import type { UserRole } from '@minisoccer/shared-types';
+import type { UserRole } from '@starterkit/shared-types';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import type { AuthUser } from '../decorators/current-user.decorator';
 

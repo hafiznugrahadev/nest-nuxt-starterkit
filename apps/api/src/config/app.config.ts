@@ -3,7 +3,8 @@ import { registerAs } from '@nestjs/config';
 /** Strongly-typed app config namespace — inject via `ConfigService.get('app')`. */
 export const appConfig = registerAs('app', () => ({
   env: process.env.NODE_ENV ?? 'development',
-  port: parseInt(process.env.PORT ?? '4400', 10),
+  // Single root .env uses API_PORT; containers/compose set PORT, which wins.
+  port: parseInt(process.env.PORT ?? process.env.API_PORT ?? '4400', 10),
   apiPrefix: process.env.API_PREFIX ?? 'api',
   corsOrigin: process.env.CORS_ORIGIN ?? '*',
   jwt: {

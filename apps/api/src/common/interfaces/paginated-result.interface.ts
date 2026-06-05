@@ -1,4 +1,4 @@
-import type { PaginationMeta } from '@minisoccer/shared-types';
+import type { PaginationMeta } from '@starterkit/shared-types';
 
 /** Internal return type of repository/service list methods. */
 export interface PaginatedResult<T> {

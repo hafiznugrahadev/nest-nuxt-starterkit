@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { ApiResponse, User } from '@minisoccer/shared-types';
+import type { ApiResponse, User } from '@starterkit/shared-types';
 
 interface SessionPayload {
   accessToken: string;

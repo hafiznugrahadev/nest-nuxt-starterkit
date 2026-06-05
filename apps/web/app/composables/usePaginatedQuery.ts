@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData, type QueryKey } from '@tanstack/vue-query';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-import type { Paginated } from '@minisoccer/shared-types';
+import type { Paginated } from '@starterkit/shared-types';
 
 /**
  * SPEC DRY #5 (FE) — uniform paginated query wrapper over @tanstack/vue-query.

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, type QueryKey } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner';
 
 interface ApiMutationOptions<TData, TVars> {
-  /** Query keys to invalidate on success (e.g. ['fields'] or [['bookings']]). */
+  /** Query keys to invalidate on success (e.g. ['users']). */
   invalidateKeys?: (string | QueryKey)[];
   /** Toast shown on success. Omit to stay silent. */
   successMessage?: string;

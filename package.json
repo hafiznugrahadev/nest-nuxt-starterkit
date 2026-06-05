@@ -1,8 +1,8 @@
 {
-  "name": "minisoccer",
+  "name": "starterkit",
   "version": "0.1.0",
   "private": true,
-  "description": "Mini Soccer field booking platform — NestJS API + Nuxt 4 web (monorepo)",
+  "description": "Starter Kit field booking platform — NestJS API + Nuxt 4 web (monorepo)",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -10,8 +10,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "serve": "turbo run dev",
-    "serve:api": "turbo run dev --filter=@minisoccer/api",
-    "serve:web": "turbo run dev --filter=@minisoccer/web",
+    "serve:api": "turbo run dev --filter=@starterkit/api",
+    "serve:web": "turbo run dev --filter=@starterkit/web",
     "build": "turbo run build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

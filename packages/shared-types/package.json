@@ -1,5 +1,5 @@
 {
-  "name": "@minisoccer/shared-types",
+  "name": "@starterkit/shared-types",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/cjs/index.js",

@@ -15,6 +15,10 @@ jobs:
   verify:
     name: Lint · Typecheck · Test · Build
     runs-on: ubuntu-latest
+    # Placeholder URL: no CI step connects to a DB; it only satisfies Prisma's
+    # config/generate. Real connection strings are injected at deploy time.
+    env:
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db?schema=public
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -29,10 +33,10 @@ jobs:
 
       # Prereqs the gates depend on: Prisma client + the shared-types build.
       - name: Generate Prisma client
-        run: bun run --filter @minisoccer/api prisma:generate
+        run: bun run --filter @starterkit/api prisma:generate
 
       - name: Build shared-types
-        run: bun run --filter @minisoccer/shared-types build
+        run: bun run --filter @starterkit/shared-types build
 
       - name: Lint
         run: bun run lint

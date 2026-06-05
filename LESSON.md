@@ -1,6 +1,6 @@
 # LESSON — Cara Setup Monorepo (Bun + Turbo + NestJS + Nuxt)
 
-> Panduan praktis membangun monorepo seperti `minisoccer` **dari nol**. Fokus ke
+> Panduan praktis membangun monorepo seperti `starterkit` **dari nol**. Fokus ke
 > _alasan_ tiap keputusan, bukan cuma perintah. Tiap bagian punya bagian
 > **"Kenapa"** dan **"Jebakan"** (masalah nyata yang kita temui saat membangun ini).
 
@@ -38,7 +38,7 @@ package manager lewat fitur **workspaces**.
 
 - **Share types tanpa publish ke npm.** Backend & frontend butuh tipe yang sama
   (enum status, bentuk response API). Di monorepo, cukup bikin paket
-  `@minisoccer/shared-types` dan kedua app `import` dari situ — tanpa registry.
+  `@starterkit/shared-types` dan kedua app `import` dari situ — tanpa registry.
 - **Satu kali install.** `bun install` di root meng-install semua app sekaligus.
 - **Tooling konsisten.** Satu config TypeScript dasar, satu Prettier, satu pipeline CI.
 - **Atomic change.** Ubah kontrak API + backend + frontend dalam **satu commit/PR**.
@@ -73,7 +73,7 @@ perlu install npm/pnpm/yarn terpisah.
 ## 3. Struktur akhir
 
 ```
-minisoccer/
+starterkit/
 ├── package.json            # root: workspaces + script global
 ├── turbo.json              # pipeline task (build/dev/test) + urutan
 ├── tsconfig.base.json      # config TS yang di-extends semua paket
@@ -100,8 +100,8 @@ minisoccer/
         └── app/
 ```
 
-**Aturan penamaan paket:** semua pakai scope yang sama, mis. `@minisoccer/api`,
-`@minisoccer/web`, `@minisoccer/shared-types`. Scope ini yang dipakai saat `import`.
+**Aturan penamaan paket:** semua pakai scope yang sama, mis. `@starterkit/api`,
+`@starterkit/web`, `@starterkit/shared-types`. Scope ini yang dipakai saat `import`.
 
 ---
 
@@ -113,7 +113,7 @@ workspace tidak boleh ter-publish), dan `workspaces` menunjuk ke pola folder pak
 ```jsonc
 // package.json (root)
 {
-  "name": "minisoccer",
+  "name": "starterkit",
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
@@ -179,7 +179,7 @@ Ini paket terpenting di monorepo: sumber kebenaran tipe yang dipakai BE & FE.
 ```jsonc
 // packages/shared-types/package.json
 {
-  "name": "@minisoccer/shared-types",
+  "name": "@starterkit/shared-types",
   "private": true,
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -202,7 +202,7 @@ Isi paket cukup tipe + sedikit nilai runtime (enum):
 
 ```ts
 // packages/shared-types/src/index.ts
-export { FieldStatus } from './enums/field-status.enum';
+export { UserRole } from './enums/user-role.enum';
 export type { ApiResponse, Paginated } from './types/api-response';
 ```
 
@@ -217,7 +217,7 @@ Kalau kita cuma emit CommonJS, **Vite gagal mendeteksi named export** dan build
 frontend error:
 
 ```
-"FieldStatus" is not exported by "shared-types/dist/index.js"
+"UserRole" is not exported by "shared-types/dist/index.js"
 ```
 
 Penyebabnya: Rollup/Vite memakai `cjs-module-lexer` untuk membaca named export dari
@@ -242,10 +242,10 @@ Node ambil `require` → `dist/cjs`, Vite ambil `import` → `dist/esm`. Beres.
 
 ```ts
 // ❌ JANGAN — `export *` susah dideteksi lexer di output CJS
-export * from './enums/field-status.enum';
+export * from './enums/user-role.enum';
 
 // ✅ PAKAI — eksplisit, selalu terdeteksi
-export { FieldStatus } from './enums/field-status.enum';
+export { UserRole } from './enums/user-role.enum';
 ```
 
 ---
@@ -257,15 +257,15 @@ Pakai struktur NestJS standar. Yang penting untuk **monorepo**:
 ```jsonc
 // apps/api/package.json (potongan penting)
 {
-  "name": "@minisoccer/api",
+  "name": "@starterkit/api",
   "dependencies": {
-    "@minisoccer/shared-types": "workspace:*", // ← ini kuncinya
+    "@starterkit/shared-types": "workspace:*", // ← ini kuncinya
   },
 }
 ```
 
 > **`workspace:*`** memberi tahu Bun: "paket ini ada di workspace lokal, jangan cari
-> ke npm." Bun akan membuat symlink `node_modules/@minisoccer/shared-types` →
+> ke npm." Bun akan membuat symlink `node_modules/@starterkit/shared-types` →
 > `packages/shared-types`.
 
 Tambahkan **path alias** di `tsconfig.json` api supaya import internal rapi:
@@ -288,7 +288,7 @@ Tambahkan **path alias** di `tsconfig.json` api supaya import internal rapi:
 Lalu import lintas-paket biasa saja:
 
 ```ts
-import { FieldStatus } from '@minisoccer/shared-types'; // dari paket workspace
+import { UserRole } from '@starterkit/shared-types'; // dari paket workspace
 import { BaseEntity } from '@common/entities/base.entity'; // dari alias internal
 ```
 
@@ -306,8 +306,8 @@ Sama: deklarasikan dependency workspace.
 ```jsonc
 // apps/web/package.json (potongan)
 {
-  "name": "@minisoccer/web",
-  "dependencies": { "@minisoccer/shared-types": "workspace:*" },
+  "name": "@starterkit/web",
+  "dependencies": { "@starterkit/shared-types": "workspace:*" },
 }
 ```
 
@@ -354,18 +354,18 @@ bun install
 Bun akan:
 
 1. Install semua dependency semua paket sekaligus.
-2. Membuat symlink paket workspace (`@minisoccer/shared-types`) ke `node_modules`.
+2. Membuat symlink paket workspace (`@starterkit/shared-types`) ke `node_modules`.
 
 Lalu **build shared-types dulu** (karena app meng-`import` hasil build-nya):
 
 ```bash
-bun run --filter @minisoccer/shared-types build
+bun run --filter @starterkit/shared-types build
 ```
 
 > **`--filter`** menjalankan script di paket tertentu saja. Bentuk umum:
 > `bun run --filter <nama-paket> <script>`.
 
-Sekarang `apps/api` & `apps/web` sudah bisa `import { FieldStatus } from '@minisoccer/shared-types'`.
+Sekarang `apps/api` & `apps/web` sudah bisa `import { UserRole } from '@starterkit/shared-types'`.
 
 ---
 
@@ -395,17 +395,20 @@ bun run test       # jalankan test semua paket
 
 ## 10. Langkah 7 — Port yang aman & command `serve`
 
-**Prinsip:** jangan hardcode port. Baca dari `.env`, dan **hindari 3000** (paling
-sering bentrok). Di project ini: web `4300`, api `4400`.
+**Prinsip:** jangan hardcode port. Baca dari **satu `.env` di root**, dan **hindari
+3000** (paling sering bentrok). Di project ini: web `4300`, api `4400`.
 
 ```bash
-# apps/api/.env
-PORT=4400
-
-# apps/web/.env
-PORT=4300
+# .env (root) — satu file untuk seluruh monorepo
+API_PORT=4400
+WEB_PORT=4300
 NUXT_PUBLIC_API_BASE=http://localhost:4400/api
 ```
+
+> **Satu `.env` untuk monorepo.** API memuatnya lewat
+> `ConfigModule.forRoot({ envFilePath: ['../../.env'] })`, dan Nuxt lewat
+> `nuxt --dotenv ../../.env`. Tidak ada `.env` per-app. Tiap app membaca port-nya
+> sendiri (`API_PORT` / `WEB_PORT`); di container, `PORT` dari compose yang menang.
 
 Di backend, baca port dari config service (bukan `process.env` mentah) supaya `.env`
 jadi satu sumber kebenaran:
@@ -421,8 +424,8 @@ await app.listen(config.get<number>('app.port') ?? 4400);
 ```jsonc
 "scripts": {
   "serve": "turbo run dev",                          // api + web sekaligus
-  "serve:api": "turbo run dev --filter=@minisoccer/api",
-  "serve:web": "turbo run dev --filter=@minisoccer/web"
+  "serve:api": "turbo run dev --filter=@starterkit/api",
+  "serve:web": "turbo run dev --filter=@starterkit/web"
 }
 ```
 
@@ -457,7 +460,7 @@ RUN bun install --frozen-lockfile --ignore-scripts   # ← lihat jebakan di bawa
 
 FROM deps AS build
 COPY . .
-RUN bun run --filter @minisoccer/shared-types build && \
+RUN bun run --filter @starterkit/shared-types build && \
     cd apps/api && bun run build
 
 FROM oven/bun:1.3.3-slim AS runtime
@@ -465,7 +468,7 @@ COPY --from=build /app/apps/api/dist ./dist
 CMD ["bun", "dist/main.js"]
 ```
 
-Build-nya: `docker build -f apps/api/Dockerfile -t minisoccer-api .` (titik = root).
+Build-nya: `docker build -f apps/api/Dockerfile -t starterkit-api .` (titik = root).
 
 > **Jebakan #5 — `--ignore-scripts` saat install di Docker.** Stage `deps` cuma
 > meng-copy `package.json`, belum ada source. Kalau ada `postinstall` (mis.
@@ -556,7 +559,7 @@ Format commit: `feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `build:`, `test:
 [ ] apps/web      (workspace:* + tsconfig extends .nuxt + auto-import boundary)
 [ ] bun install
 [ ] bun run --filter <shared-types> build
-[ ] .env per app  (port != 3000)
+[ ] satu .env di root  (API_PORT / WEB_PORT != 3000; dibaca API via envFilePath, Nuxt via --dotenv)
 [ ] script serve / serve:api / serve:web
 [ ] Dockerfile multi-stage + 2 compose (dev hot-reload / prod)
 [ ] git init + husky + commitlint

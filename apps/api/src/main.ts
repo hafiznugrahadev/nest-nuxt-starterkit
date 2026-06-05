@@ -58,8 +58,8 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Mini Soccer API')
-    .setDescription('Field booking platform API')
+    .setTitle('Starter Kit API')
+    .setDescription('NestJS + Nuxt starter kit API')
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();

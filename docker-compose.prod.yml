@@ -1,20 +1,20 @@
 # ╭──────────────────────────────────────────────────────────────────────────╮
 # │ PROD stack — APPLICATIONS ONLY (Dokploy-compatible)                         │
 # │   api + web, built from the multi-stage Dockerfiles.                        │
-# │   NO postgres / redis / rustfs here — provision those in Dokploy and inject │
+# │   NO postgres / redis here — provision those in Dokploy and inject their │
 # │   their connection strings as environment variables.                        │
 # │                                                                            │
 # │   Routing/TLS is handled by Dokploy's Traefik on `dokploy-network`. Set the │
 # │   real domains in the Dokploy UI (or uncomment the Traefik labels below).   │
 # ╰──────────────────────────────────────────────────────────────────────────╯
-name: minisoccer
+name: starterkit
 
 services:
   api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    image: minisoccer-api:latest
+    image: starterkit-api:latest
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -26,7 +26,8 @@ services:
       REDIS_PORT: ${REDIS_PORT:-6379}
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_DAYS: ${JWT_REFRESH_EXPIRES_DAYS:-7}
       CORS_ORIGIN: ${CORS_ORIGIN}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     expose:
@@ -35,10 +36,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=dokploy-network
-      # - traefik.http.routers.minisoccer-api.rule=Host(`api.example.com`)
-      # - traefik.http.routers.minisoccer-api.entrypoints=websecure
-      # - traefik.http.routers.minisoccer-api.tls.certresolver=letsencrypt
-      # - traefik.http.services.minisoccer-api.loadbalancer.server.port=4400
+      # - traefik.http.routers.starterkit-api.rule=Host(`api.example.com`)
+      # - traefik.http.routers.starterkit-api.entrypoints=websecure
+      # - traefik.http.routers.starterkit-api.tls.certresolver=letsencrypt
+      # - traefik.http.services.starterkit-api.loadbalancer.server.port=4400
 
   web:
     build:
@@ -47,7 +48,7 @@ services:
       args:
         # Baked into the client bundle at build time.
         NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE}
-    image: minisoccer-web:latest
+    image: starterkit-web:latest
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -62,10 +63,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=dokploy-network
-      # - traefik.http.routers.minisoccer-web.rule=Host(`app.example.com`)
-      # - traefik.http.routers.minisoccer-web.entrypoints=websecure
-      # - traefik.http.routers.minisoccer-web.tls.certresolver=letsencrypt
-      # - traefik.http.services.minisoccer-web.loadbalancer.server.port=4300
+      # - traefik.http.routers.starterkit-web.rule=Host(`app.example.com`)
+      # - traefik.http.routers.starterkit-web.entrypoints=websecure
+      # - traefik.http.routers.starterkit-web.tls.certresolver=letsencrypt
+      # - traefik.http.services.starterkit-web.loadbalancer.server.port=4300
 
 networks:
   dokploy-network:

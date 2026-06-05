@@ -11,8 +11,7 @@ import { IsUniqueConstraint } from '@common/validators/is-unique.validator';
 import { PrismaModule } from '@infrastructure/database/prisma.module';
 import { RedisModule } from '@infrastructure/redis/redis.module';
 import { AuthModule } from '@modules/auth/auth.module';
-import { FieldModule } from '@modules/field/field.module';
-import { BookingModule } from '@modules/booking/booking.module';
+import { UsersModule } from '@modules/users/users.module';
 import { HealthModule } from '@modules/health/health.module';
 
 @Module({
@@ -20,6 +19,9 @@ import { HealthModule } from '@modules/health/health.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      // Single source of truth: the monorepo-root .env (cwd is apps/api at runtime).
+      // Real env vars (e.g. from docker-compose) still take precedence.
+      envFilePath: ['../../.env'],
       validate: validateEnv,
       load: [appConfig, databaseConfig, redisConfig],
     }),
@@ -38,8 +40,7 @@ import { HealthModule } from '@modules/health/health.module';
     PrismaModule,
     RedisModule,
     AuthModule,
-    FieldModule,
-    BookingModule,
+    UsersModule,
     HealthModule,
   ],
   // Provided here too so class-validator's container can resolve the async validator.

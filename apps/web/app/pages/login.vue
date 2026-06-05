@@ -9,7 +9,7 @@ import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
 
 definePageMeta({ layout: 'default' });
-useHead({ title: 'Login — Mini Soccer' });
+useHead({ title: 'Login — Starter Kit' });
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -30,7 +30,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     await auth.login(values.email, values.password);
     toast.success('Welcome back!');
-    const redirect = (route.query.redirect as string) || '/bookings';
+    const redirect = (route.query.redirect as string) || '/';
     await navigateTo(redirect);
   } catch {
     toast.error('Invalid email or password');
@@ -46,11 +46,11 @@ const onSubmit = handleSubmit(async (values) => {
       <div class="mb-6 flex flex-col items-center gap-2 text-center">
         <Goal class="h-8 w-8 text-primary" />
         <h1 class="text-xl font-bold tracking-tight">Sign in to {{ APP_NAME }}</h1>
-        <p class="text-sm text-muted-foreground">Use your account to manage bookings.</p>
+        <p class="text-sm text-muted-foreground">Sign in to access your account.</p>
       </div>
 
       <form class="space-y-4" @submit="onSubmit">
-        <TextField name="email" label="Email" type="email" placeholder="admin@minisoccer.test" />
+        <TextField name="email" label="Email" type="email" placeholder="admin@starterkit.test" />
         <TextField name="password" label="Password" type="password" placeholder="••••••••" />
         <Button type="submit" class="w-full" :disabled="submitting">
           {{ submitting ? 'Signing in…' : 'Sign in' }}
@@ -58,7 +58,7 @@ const onSubmit = handleSubmit(async (values) => {
       </form>
 
       <p class="mt-4 text-center text-xs text-muted-foreground">
-        Demo: admin@minisoccer.test / admin123
+        Demo: admin@starterkit.test / admin123
       </p>
     </Card>
   </section>

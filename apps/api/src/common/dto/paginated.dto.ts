@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { PaginationMeta } from '@minisoccer/shared-types';
+import type { PaginationMeta } from '@starterkit/shared-types';
 
 /** SPEC DRY #4 — uniform pagination meta across every list endpoint. */
 export class PaginationMetaDto implements PaginationMeta {

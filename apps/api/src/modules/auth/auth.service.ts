@@ -1,7 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { User } from '@prisma/client';
+import type { User } from '@generated/prisma/client';
 import { PrismaService } from '@infrastructure/database/prisma.service';
 import { verifyPassword } from '@common/utils/password';
 import { generateRefreshToken, generateTokenFamily, hashToken } from '@common/utils/token.util';

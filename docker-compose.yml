@@ -1,30 +1,30 @@
 # ╭──────────────────────────────────────────────────────────────────────────╮
 # │ DEV stack — full local environment with HOT RELOAD                          │
-# │   infra:  postgres + redis + rustfs                                         │
+# │   infra:  postgres + redis                                                   │
 # │   apps:   api (nest --watch) + web (nuxt HMR), source bind-mounted          │
 # │                                                                            │
 # │ One-time (network is shared with Dokploy):                                  │
 # │   docker network create dokploy-network                                     │
 # │ Run:  docker compose up            (full hot-reload stack)                   │
-# │ Infra only:  docker compose up postgres redis rustfs                        │
+# │ Infra only:  docker compose up postgres redis                               │
 # ╰──────────────────────────────────────────────────────────────────────────╯
-name: minisoccer-dev
+name: starterkit-dev
 
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: minisoccer-postgres
+    container_name: starterkit-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-minisoccer}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-minisoccer}
-      POSTGRES_DB: ${POSTGRES_DB:-minisoccer}
+      POSTGRES_USER: ${POSTGRES_USER:-starterkit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-starterkit}
+      POSTGRES_DB: ${POSTGRES_DB:-starterkit}
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-minisoccer}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-starterkit}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: minisoccer-redis
+    container_name: starterkit-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
@@ -46,40 +46,26 @@ services:
       retries: 5
     networks: [dokploy-network]
 
-  rustfs:
-    image: rustfs/rustfs:latest
-    container_name: minisoccer-rustfs
-    restart: unless-stopped
-    command: ['/data']
-    environment:
-      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
-      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
-      RUSTFS_CONSOLE_ENABLE: 'true'
-    ports:
-      - '${RUSTFS_PORT:-9000}:9000'
-    volumes:
-      - rustfs_data:/data
-    networks: [dokploy-network]
-
   api:
     image: oven/bun:1.3.3
-    container_name: minisoccer-api-dev
+    container_name: starterkit-api-dev
     restart: unless-stopped
     working_dir: /app
     command: >
       sh -c "bun install --frozen-lockfile &&
-             bun run --filter @minisoccer/shared-types build &&
-             bun run --filter @minisoccer/api prisma:generate &&
-             bun run --filter @minisoccer/api dev"
+             bun run --filter @starterkit/shared-types build &&
+             bun run --filter @starterkit/api prisma:generate &&
+             bun run --filter @starterkit/api dev"
     environment:
       NODE_ENV: development
       PORT: ${API_PORT:-4400}
       API_PREFIX: api
-      DATABASE_URL: postgresql://${POSTGRES_USER:-minisoccer}:${POSTGRES_PASSWORD:-minisoccer}@postgres:5432/${POSTGRES_DB:-minisoccer}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-starterkit}:${POSTGRES_PASSWORD:-starterkit}@postgres:5432/${POSTGRES_DB:-starterkit}?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-min-16-chars}
-      JWT_EXPIRES_IN: 1d
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_DAYS: 7
       CORS_ORIGIN: http://localhost:${WEB_PORT:-4300}
       LOG_LEVEL: debug
     ports:
@@ -96,13 +82,13 @@ services:
 
   web:
     image: oven/bun:1.3.3
-    container_name: minisoccer-web-dev
+    container_name: starterkit-web-dev
     restart: unless-stopped
     working_dir: /app
     command: >
       sh -c "bun install --frozen-lockfile &&
-             bun run --filter @minisoccer/shared-types build &&
-             bun run --filter @minisoccer/web dev"
+             bun run --filter @starterkit/shared-types build &&
+             bun run --filter @starterkit/web dev"
     environment:
       NODE_ENV: development
       PORT: ${WEB_PORT:-4300}
@@ -126,6 +112,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  rustfs_data:
   api_node_modules:
   web_node_modules:

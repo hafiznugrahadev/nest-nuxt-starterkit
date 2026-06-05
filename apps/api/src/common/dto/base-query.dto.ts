@@ -4,7 +4,7 @@ import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 /**
  * SPEC DRY #2 — every list endpoint extends this. Feature query DTOs add only
- * their own filters (e.g. `@IsEnum(FieldStatus) status?`).
+ * their own filters (e.g. `@IsEnum(UserRole) role?`).
  */
 export class BaseQueryDto {
   @ApiPropertyOptional({ minimum: 1, default: 1 })

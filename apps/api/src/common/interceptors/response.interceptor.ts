@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ApiSuccessResponse, PaginationMeta } from '@minisoccer/shared-types';
+import type { ApiSuccessResponse, PaginationMeta } from '@starterkit/shared-types';
 
 interface MaybePaginated {
   data: unknown;

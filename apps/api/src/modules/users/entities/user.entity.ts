@@ -1,0 +1,10 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@starterkit/shared-types';
+import { BaseEntity } from '@common/entities/base.entity';
+
+/** Response shape for a user — never includes the password hash (SPEC DRY #1). */
+export class UserEntity extends BaseEntity {
+  @ApiProperty() email!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ enum: UserRole }) role!: UserRole;
+}

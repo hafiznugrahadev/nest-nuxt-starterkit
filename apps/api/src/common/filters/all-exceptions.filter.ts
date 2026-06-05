@@ -6,9 +6,9 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma/client';
 import type { Request, Response } from 'express';
-import type { ApiErrorResponse } from '@minisoccer/shared-types';
+import type { ApiErrorResponse } from '@starterkit/shared-types';
 
 /**
  * Global filter producing the `{ success:false, ... }` error envelope. Maps known

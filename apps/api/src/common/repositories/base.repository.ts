@@ -29,7 +29,12 @@ export abstract class BaseRepository<T> {
 
   async paginate(
     query: BaseQueryDto,
-    options: { where?: Record<string, unknown>; include?: Record<string, unknown> } = {},
+    options: {
+      where?: Record<string, unknown>;
+      include?: Record<string, unknown>;
+      /** Columns to exclude from each row (e.g. `{ password: true }`). */
+      omit?: Record<string, boolean>;
+    } = {},
   ): Promise<PaginatedResult<T>> {
     const { page, limit, search, order, sortBy } = query;
 
@@ -44,6 +49,7 @@ export abstract class BaseRepository<T> {
       this.delegate.findMany({
         where,
         include: options.include,
+        omit: options.omit,
         orderBy: { [sortBy]: order },
         skip: query.skip,
         take: limit,
