@@ -1,0 +1,45 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e130]:
+      - banner [ref=e131]:
+        - generic [ref=e132]:
+          - link "Mini Soccer" [ref=e133] [cursor=pointer]:
+            - /url: /
+            - img [ref=e134]
+            - generic [ref=e138]: Mini Soccer
+          - navigation [ref=e139]:
+            - button "Fields" [ref=e140]
+            - button "Bookings" [ref=e141]
+            - button "Login" [ref=e142]
+      - main [ref=e143]:
+        - generic [ref=e145]:
+          - generic [ref=e146]:
+            - img [ref=e147]
+            - heading "Sign in to Mini Soccer" [level=1] [ref=e151]
+            - paragraph [ref=e152]: Use your account to manage bookings.
+          - generic [ref=e153]:
+            - generic [ref=e154]:
+              - text: Email
+              - textbox "Email" [ref=e155]:
+                - /placeholder: admin@minisoccer.test
+            - generic [ref=e156]:
+              - text: Password
+              - textbox "Password" [ref=e157]:
+                - /placeholder: ••••••••
+            - button "Sign in" [ref=e158]
+          - paragraph [ref=e159]: "Demo: admin@minisoccer.test / admin123"
+    - region "Notifications alt+T":
+      - list:
+        - status [ref=e160]:
+          - img [ref=e162]
+          - generic [ref=e165]: Signed out
+  - generic:
+    - img
+  - generic [ref=e38]:
+    - button "Toggle Nuxt DevTools" [ref=e39] [cursor=pointer]:
+      - img [ref=e40]
+    - generic "Page load time" [ref=e43]:
+      - generic [ref=e44]: "7"
+      - generic [ref=e45]: ms
+    - button "Toggle Component Inspector" [ref=e47] [cursor=pointer]:
+      - img [ref=e48]

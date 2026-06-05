@@ -1,0 +1,27 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Mini Soccer" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e11]: Mini Soccer
+      - navigation [ref=e12]:
+        - button "Fields" [ref=e13]
+        - button "Bookings" [ref=e14]
+  - main [ref=e15]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - img [ref=e19]
+        - heading "Sign in to Mini Soccer" [level=1] [ref=e23]
+        - paragraph [ref=e24]: Use your account to manage bookings.
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - text: Email
+          - textbox "Email" [ref=e27]:
+            - /placeholder: admin@minisoccer.test
+        - generic [ref=e28]:
+          - text: Password
+          - textbox "Password" [ref=e29]:
+            - /placeholder: ••••••••
+        - button "Sign in" [ref=e30]
+      - paragraph [ref=e31]: "Demo: admin@minisoccer.test / admin123"

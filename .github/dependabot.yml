@@ -1,0 +1,85 @@
+# Dependabot — grouped minor/patch updates + security (CVE) fixes.
+# Docs: https://docs.github.com/code-security/dependabot/dependabot-version-updates
+#
+# Strategy:
+#   • Skip MAJOR version bumps for scheduled updates (avoid breaking changes).
+#   • Batch the rest into a few grouped PRs (less noise than one-PR-per-dep).
+#   • Security (CVE) updates flow through their own group as soon as an advisory
+#     hits — enable "Dependabot security updates" in repo settings to power these
+#     (already enabled via gh api during setup).
+version: 2
+
+updates:
+  # ── npm / Bun — root + every workspace ─────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directories:
+      - '/'
+      - '/apps/api'
+      - '/apps/web'
+      - '/packages/shared-types'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '03:00'
+      timezone: 'Asia/Makassar'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    # Scheduled updates: minor + patch only (majors are opt-in/manual).
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      # CVE fixes — highest priority, batched together.
+      security:
+        applies-to: security-updates
+        patterns: ['*']
+      # Runtime deps, minor + patch.
+      production:
+        applies-to: version-updates
+        dependency-type: 'production'
+        update-types: ['minor', 'patch']
+      # Tooling/build deps, minor + patch.
+      development:
+        applies-to: version-updates
+        dependency-type: 'development'
+        update-types: ['minor', 'patch']
+
+  # ── Docker base images (apps/api + apps/web Dockerfiles) ───────────────────
+  - package-ecosystem: 'docker'
+    directories:
+      - '/apps/api'
+      - '/apps/web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'docker'
+    commit-message:
+      prefix: 'chore(docker)'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      docker:
+        patterns: ['*']
+
+  # ── GitHub Actions (workflows under .github/workflows) ─────────────────────
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    labels:
+      - 'dependencies'
+      - 'ci'
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      github-actions:
+        patterns: ['*']
