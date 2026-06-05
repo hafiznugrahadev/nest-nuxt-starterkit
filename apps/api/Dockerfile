@@ -1,10 +1,11 @@
 # syntax=docker/dockerfile:1
-# Multi-stage build for @minisoccer/api (NestJS + Prisma on Bun).
+# Multi-stage build for @starterkit/api (NestJS + Prisma 7 on Bun).
 # Build context MUST be the repo root: `docker build -f apps/api/Dockerfile .`
 
 # ─────────────────────────────── deps ────────────────────────────────────────
-# Install the whole workspace from the lockfile. --ignore-scripts skips app
-# postinstall hooks (e.g. nuxt prepare) that need source we haven't copied yet.
+# Cached install from the lockfile. --ignore-scripts skips workspace postinstalls
+# (e.g. web's `nuxt prepare`, which needs the shared-types build that runs later).
+# bcrypt ships prebuilt binaries, so it needs no install script.
 FROM oven/bun:1.3.3 AS deps
 WORKDIR /app
 COPY package.json bun.lock turbo.json tsconfig.base.json ./
@@ -18,26 +19,34 @@ FROM deps AS build
 WORKDIR /app
 COPY packages/shared-types ./packages/shared-types
 COPY apps/api ./apps/api
-# shared-types first (api imports it), then generate Prisma client + compile.
-RUN bun run --filter @minisoccer/shared-types build \
- && cd apps/api && bun run prisma:generate && bun run build
+# shared-types first (api imports it). Prisma 7 generate reads prisma.config.ts,
+# which expects DATABASE_URL to exist (value unused at generate time).
+ENV DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
+RUN bun run --filter @starterkit/shared-types build \
+ && bun run --filter @starterkit/api prisma:generate \
+ && bun run --filter @starterkit/api build
 
 # ─────────────────────────────── runtime ─────────────────────────────────────
 FROM oven/bun:1.3.3-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app/apps/api
-# Prisma engines need openssl + ca-certificates at runtime.
+# CA roots for TLS connections to managed Postgres/Redis.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends openssl ca-certificates \
+ && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/*
-# node_modules carries the generated Prisma client + the prisma CLI (for migrate).
+# Prisma 7 is Rust-free (driver adapter) — no engine binary. Bun installs per
+# workspace, so copy BOTH the hoisted root node_modules and the api's own
+# node_modules (which holds its deps + the `.bin/prisma` CLI for migrate deploy).
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/packages/shared-types/dist /app/packages/shared-types/dist
 COPY --from=build /app/packages/shared-types/package.json /app/packages/shared-types/package.json
+COPY --from=build /app/apps/api/node_modules ./node_modules
 COPY --from=build /app/apps/api/dist ./dist
 COPY --from=build /app/apps/api/package.json ./package.json
 COPY --from=build /app/apps/api/prisma ./prisma
+COPY --from=build /app/apps/api/prisma.config.ts ./prisma.config.ts
+# Entrypoint script: migrate deploy, then boot (see docker/prod-api.sh). For
+# multiple replicas, run migrate deploy as a separate release step instead.
+COPY docker/prod-api.sh /app/docker/prod-api.sh
 EXPOSE 4400
-# Apply pending migrations, then boot. Move `migrate deploy` to a Dokploy release
-# command instead if you run multiple replicas.
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun dist/main.js"]
+ENTRYPOINT ["sh", "/app/docker/prod-api.sh"]

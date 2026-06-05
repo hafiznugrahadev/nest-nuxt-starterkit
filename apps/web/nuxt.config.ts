@@ -23,6 +23,12 @@ export default defineNuxtConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    // Bundle these (instead of externalizing) so named ESM exports survive the
+    // dev SSR transform under Bun — otherwise `import { z } from 'zod'` is
+    // undefined server-side. Prod (Nitro) already inlines them.
+    ssr: {
+      noExternal: ['zod', '@vee-validate/zod', 'vee-validate'],
+    },
   },
 
   // ── SPEC: Auto-import boundary strategy ──────────────────────────────────────

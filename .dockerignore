@@ -5,6 +5,8 @@
 **/.nuxt
 **/.turbo
 **/coverage
+**/generated
+.playwright-mcp
 .git
 .github
 **/.env
@@ -16,4 +18,4 @@
 **/.idea
 README.md
 SPEC.md
-FLOW.md
+LESSON.md

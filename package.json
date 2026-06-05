@@ -2,7 +2,7 @@
   "name": "starterkit",
   "version": "0.1.0",
   "private": true,
-  "description": "Starter Kit field booking platform — NestJS API + Nuxt 4 web (monorepo)",
+  "description": "Starter Kit — NestJS API + Nuxt 4 web monorepo (Bun + Turbo)",
   "workspaces": [
     "apps/*",
     "packages/*"
