@@ -1,4 +1,4 @@
-// Prisma schema for starterkit. UserRole mirrors @starterkit/shared-types.
+// Prisma schema for starterkit.
 // Prisma 7: Rust-free `prisma-client` generator + a driver adapter at runtime
 // (see prisma.service.ts). The client is generated into src/ so nest build emits it.
 generator client {
@@ -13,22 +13,27 @@ datasource db {
   // driver adapter (runtime). It is no longer set here.
 }
 
-enum UserRole {
-  ADMIN
-  USER
-}
-
 model User {
   id            String         @id @default(uuid())
   email         String         @unique
   name          String
   password      String
-  role          UserRole       @default(USER)
+  // Many-to-many: a user can hold multiple roles (scalable RBAC).
+  roles         Role[]         @relation("UserRoles")
   refreshTokens RefreshToken[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   @@map("users")
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  name      String   @unique // e.g. ADMIN, USER — add rows without code changes
+  users     User[]   @relation("UserRoles")
+  createdAt DateTime @default(now())
+
+  @@map("roles")
 }
 
 model RefreshToken {

@@ -3,7 +3,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import type { User } from '@starterkit/shared-types';
 import Badge from '~/components/ui/Badge.vue';
 
-const roleVariant: Record<User['role'], string> = {
+const roleVariant: Record<string, string> = {
   ADMIN: 'default',
   USER: 'secondary',
 };
@@ -13,10 +13,16 @@ export const userColumns: ColumnDef<User, unknown>[] = [
   { accessorKey: 'name', header: 'Name' },
   { accessorKey: 'email', header: 'Email' },
   {
-    accessorKey: 'role',
-    header: 'Role',
+    accessorKey: 'roles',
+    header: 'Roles',
     cell: ({ row }) =>
-      h(Badge, { variant: roleVariant[row.original.role] as never }, () => row.original.role),
+      h(
+        'div',
+        { class: 'flex flex-wrap gap-1' },
+        row.original.roles.map((role) =>
+          h(Badge, { key: role, variant: (roleVariant[role] ?? 'outline') as never }, () => role),
+        ),
+      ),
   },
   {
     accessorKey: 'createdAt',

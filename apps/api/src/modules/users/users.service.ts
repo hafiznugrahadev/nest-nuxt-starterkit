@@ -34,11 +34,21 @@ export class UsersService extends BaseCrudService<UserEntity, never, never, Quer
     if (cached) return cached;
 
     const where: Record<string, unknown> = {};
-    if (query.role) where.role = query.role;
-    const result = await this.usersRepository.paginate(query, {
+    if (query.role) where.roles = { some: { name: query.role } };
+    const page = await this.usersRepository.paginate(query, {
       where,
+      include: { roles: true },
       omit: { password: true },
     });
+
+    // Flatten each user's Role[] into a string[] of role names for the response.
+    const result: PaginatedResult<UserEntity> = {
+      ...page,
+      data: page.data.map((u) => {
+        const row = u as unknown as Omit<UserEntity, 'roles'> & { roles: { name: string }[] };
+        return { ...row, roles: row.roles.map((r) => r.name) };
+      }),
+    };
 
     await this.safe(() => this.redis.set(cacheKey, result, this.cacheTtlSeconds));
     return result;

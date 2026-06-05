@@ -1,10 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { UserRole } from '@starterkit/shared-types';
 
 export interface AuthUser {
   id: string;
   email: string;
-  role: UserRole;
+  /** Role names the user holds (e.g. ['ADMIN', 'USER']). */
+  roles: string[];
 }
 
 /** `@CurrentUser()` — pull the authenticated user (set by JwtStrategy) off the request. */

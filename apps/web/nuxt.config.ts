@@ -19,6 +19,29 @@ export default defineNuxtConfig({
   // <Toaster> manually in app.vue and just transpile the package for SSR.
   build: { transpile: ['vue-sonner'] },
 
+  app: {
+    head: {
+      // Outfit is TailAdmin's typeface; preconnect + load the weights we use.
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap',
+        },
+      ],
+      script: [
+        {
+          // Anti-FOUC: apply the persisted (or system) theme before first paint so
+          // the dark/light flip never flashes on reload.
+          innerHTML:
+            "(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
+          tagPosition: 'head',
+        },
+      ],
+    },
+  },
+
   css: ['~/assets/css/main.css'],
 
   vite: {

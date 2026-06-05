@@ -26,18 +26,18 @@ const isEmpty = computed(() => !props.isLoading && props.data.length === 0);
 </script>
 
 <template>
-  <div class="rounded-md border">
+  <div class="overflow-hidden rounded-xl border border-border">
     <table class="w-full caption-bottom text-sm">
-      <thead class="border-b">
+      <thead class="bg-muted/50">
         <tr
           v-for="headerGroup in table.getHeaderGroups()"
           :key="headerGroup.id"
-          class="border-b transition-colors"
+          class="border-b border-border transition-colors"
         >
           <th
             v-for="header in headerGroup.headers"
             :key="header.id"
-            class="h-10 px-4 text-left align-middle font-medium text-muted-foreground"
+            class="h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground"
           >
             <FlexRender
               v-if="!header.isPlaceholder"
@@ -58,7 +58,7 @@ const isEmpty = computed(() => !props.isLoading && props.data.length === 0);
           <tr
             v-for="row in table.getRowModel().rows"
             :key="row.id"
-            class="border-b transition-colors hover:bg-muted/50"
+            class="border-b border-border transition-colors last:border-0 hover:bg-muted/50"
           >
             <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="p-4 align-middle">
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />

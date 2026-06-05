@@ -4,12 +4,11 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
 import { toast } from 'vue-sonner';
-import { Goal } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
 
-definePageMeta({ layout: 'default' });
-useHead({ title: 'Login — Starter Kit' });
+definePageMeta({ layout: 'auth' });
+useHead({ title: `Sign In — ${APP_NAME}` });
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -41,25 +40,28 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <section class="mx-auto max-w-sm">
-    <Card class="p-6">
-      <div class="mb-6 flex flex-col items-center gap-2 text-center">
-        <Goal class="h-8 w-8 text-primary" />
-        <h1 class="text-xl font-bold tracking-tight">Sign in to {{ APP_NAME }}</h1>
-        <p class="text-sm text-muted-foreground">Sign in to access your account.</p>
-      </div>
-
-      <form class="space-y-4" @submit="onSubmit">
-        <TextField name="email" label="Email" type="email" placeholder="admin@starterkit.test" />
-        <TextField name="password" label="Password" type="password" placeholder="••••••••" />
-        <Button type="submit" class="w-full" :disabled="submitting">
-          {{ submitting ? 'Signing in…' : 'Sign in' }}
-        </Button>
-      </form>
-
-      <p class="mt-4 text-center text-xs text-muted-foreground">
-        Demo: admin@starterkit.test / admin123
+  <div>
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Sign In</h1>
+      <p class="mt-2 text-sm text-muted-foreground">
+        Enter your email and password to access your account.
       </p>
-    </Card>
-  </section>
+    </div>
+
+    <form class="space-y-5" @submit="onSubmit">
+      <TextField name="email" label="Email" type="email" placeholder="admin@starterkit.test" />
+      <TextField name="password" label="Password" type="password" placeholder="••••••••" />
+      <Button type="submit" size="lg" class="w-full" :disabled="submitting">
+        {{ submitting ? 'Signing in…' : 'Sign in' }}
+      </Button>
+    </form>
+
+    <div class="mt-6 rounded-xl border border-border bg-muted/50 px-4 py-3 text-center">
+      <p class="text-xs text-muted-foreground">
+        Demo credentials —
+        <span class="font-medium text-foreground">admin@starterkit.test</span> /
+        <span class="font-medium text-foreground">admin123</span>
+      </p>
+    </div>
+  </div>
 </template>

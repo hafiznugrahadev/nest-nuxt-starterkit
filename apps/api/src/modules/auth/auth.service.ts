@@ -1,17 +1,23 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { User } from '@generated/prisma/client';
 import { PrismaService } from '@infrastructure/database/prisma.service';
 import { verifyPassword } from '@common/utils/password';
 import { generateRefreshToken, generateTokenFamily, hashToken } from '@common/utils/token.util';
 import type { JwtPayload } from './jwt.strategy';
 import { LoginDto } from './dto/login.dto';
 
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  roles: string[];
+}
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  user: { id: string; email: string; name: string; role: User['role'] };
+  user: SessionUser;
 }
 
 @Injectable()
@@ -25,7 +31,10 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto): Promise<AuthTokens> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+      include: { roles: true },
+    });
     if (!user || !(await verifyPassword(dto.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -35,15 +44,14 @@ export class AuthService {
   /**
    * Rotate the refresh token. Implements reuse detection: a token is revoked the
    * moment it is rotated (revokedAt set) but kept on record. If an already-revoked
-   * token is presented again, that signals theft — the entire family is wiped so
-   * the attacker and victim are both logged out.
+   * token is presented again, that signals theft — the entire family is wiped.
    */
   async refresh(rawToken: string | undefined): Promise<AuthTokens> {
     if (!rawToken) throw new UnauthorizedException('Missing refresh token');
 
     const stored = await this.prisma.refreshToken.findUnique({
       where: { tokenHash: hashToken(rawToken) },
-      include: { user: true },
+      include: { user: { include: { roles: true } } },
     });
     if (!stored) throw new UnauthorizedException('Invalid refresh token');
 
@@ -60,7 +68,6 @@ export class AuthService {
       throw new UnauthorizedException('Expired refresh token');
     }
 
-    // Mark the presented token revoked, then issue a new one in the same family.
     await this.prisma.refreshToken.update({
       where: { id: stored.id },
       data: { revokedAt: new Date() },
@@ -85,8 +92,12 @@ export class AuthService {
     return this.config.get<number>('app.jwt.refreshExpiresInDays') ?? 7;
   }
 
-  private async issueTokens(user: User, familyId: string): Promise<AuthTokens> {
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+  private async issueTokens(
+    user: { id: string; email: string; name: string; roles: { name: string }[] },
+    familyId: string,
+  ): Promise<AuthTokens> {
+    const roles = user.roles.map((r) => r.name);
+    const payload: JwtPayload = { sub: user.id, email: user.email, roles };
     const accessToken = await this.jwt.signAsync(payload);
 
     const refreshToken = generateRefreshToken();
@@ -98,7 +109,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      user: { id: user.id, email: user.email, name: user.name, roles },
     };
   }
 }

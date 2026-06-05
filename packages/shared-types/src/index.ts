@@ -11,4 +11,4 @@ export type {
   Paginated,
 } from './types/api-response';
 export type { BaseQuery } from './types/query';
-export type { BaseModel, User } from './entities';
+export type { BaseModel, User, Role } from './entities';

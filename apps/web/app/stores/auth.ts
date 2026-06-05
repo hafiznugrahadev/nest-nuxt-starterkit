@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { ApiResponse, User } from '@starterkit/shared-types';
+import { UserRole, type ApiResponse, type User } from '@starterkit/shared-types';
 
 interface SessionPayload {
   accessToken: string;
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
-    isAdmin: (state) => state.user?.role === 'ADMIN',
+    isAdmin: (state) => state.user?.roles?.includes(UserRole.ADMIN) ?? false,
   },
   actions: {
     /** Base URL of the API, read from runtime config. */
