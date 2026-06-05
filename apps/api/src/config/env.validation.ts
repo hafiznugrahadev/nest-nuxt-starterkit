@@ -1,5 +1,17 @@
-import { plainToInstance, Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, MinLength, validateSync } from 'class-validator';
+import { plainToInstance, Transform, Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  MinLength,
+  validateSync,
+} from 'class-validator';
+
+/** Coerce common env truthy strings ("true"/"1") into a real boolean. */
+const toBool = ({ value }: { value: unknown }): boolean =>
+  value === true || value === 'true' || value === '1';
 
 /**
  * Env schema validated at startup with class-validator (SPEC: validate env with
@@ -62,6 +74,31 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   LOG_LEVEL = 'info';
+
+  // ── Swagger docs (protected with Basic Auth) ──────────────────────────────
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  SWAGGER_ENABLED = true;
+
+  @IsString()
+  @IsOptional()
+  SWAGGER_USER = 'admin';
+
+  @IsString()
+  @IsOptional()
+  SWAGGER_PASSWORD = 'admin';
+
+  // ── Rate limiting (global ThrottlerModule) ────────────────────────────────
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  THROTTLE_TTL_MS = 60000;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  THROTTLE_LIMIT = 100;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

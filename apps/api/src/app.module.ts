@@ -1,5 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
@@ -25,18 +25,31 @@ import { HealthModule } from '@modules/health/health.module';
       validate: validateEnv,
       load: [appConfig, databaseConfig, redisConfig],
     }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.LOG_LEVEL ?? 'info',
-        transport:
-          process.env.NODE_ENV === 'production'
-            ? undefined
-            : { target: 'pino-pretty', options: { singleLine: true } },
-        customProps: (req) => ({ requestId: req.headers['x-request-id'] }),
-      },
+    // Logger config flows from ConfigService (.env → app.config → here).
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        pinoHttp: {
+          level: config.get<string>('app.logLevel') ?? 'info',
+          transport:
+            config.get<string>('app.env') === 'production'
+              ? undefined
+              : { target: 'pino-pretty', options: { singleLine: true } },
+          customProps: (req) => ({ requestId: req.headers['x-request-id'] }),
+        },
+      }),
     }),
-    // Global rate limiting; per-route overrides via @Throttle (e.g. login).
-    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
+    // Global rate limiting (config-driven); per-route overrides via @Throttle.
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          name: 'default',
+          ttl: config.get<number>('app.throttle.ttl') ?? 60_000,
+          limit: config.get<number>('app.throttle.limit') ?? 100,
+        },
+      ],
+    }),
     PrismaModule,
     RedisModule,
     AuthModule,

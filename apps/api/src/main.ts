@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import basicAuth from 'express-basic-auth';
 import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -22,6 +23,9 @@ async function bootstrap() {
   const corsOrigin = config.get<string>('app.corsOrigin') ?? '*';
   const isProd = config.get<string>('app.env') === 'production';
   const port = config.get<number>('app.port') ?? 4400;
+  const swagger = config.getOrThrow<{ enabled: boolean; user: string; password: string }>(
+    'app.swagger',
+  );
 
   app.setGlobalPrefix(apiPrefix);
 
@@ -57,18 +61,33 @@ async function bootstrap() {
   // Let class-validator resolve DI-backed validators (e.g. IsUnique).
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Starter Kit API')
-    .setDescription('NestJS + Nuxt starter kit API')
-    .setVersion('0.1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
+  // Swagger docs — toggled + Basic-Auth protected, all driven by ConfigService.
+  const docsPath = `${apiPrefix}/docs`;
+  if (swagger.enabled) {
+    // Guard the UI and its JSON/YAML siblings before mounting the docs.
+    app.use(
+      [`/${docsPath}`, `/${docsPath}-json`, `/${docsPath}-yaml`],
+      basicAuth({ challenge: true, users: { [swagger.user]: swagger.password } }),
+    );
+
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Starter Kit API')
+      .setDescription('NestJS + Nuxt starter kit API')
+      .setVersion('0.1.0')
+      // Clickable link in the UI to the raw OpenAPI JSON spec.
+      .setExternalDoc('OpenAPI JSON', `/${docsPath}-json`)
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup(docsPath, app, document);
+  }
 
   await app.listen(port);
 
-  logger.log(`API running on http://localhost:${port}/${apiPrefix} (docs: /${apiPrefix}/docs)`);
+  logger.log(
+    `API running on http://localhost:${port}/${apiPrefix}` +
+      (swagger.enabled ? ` (docs: /${docsPath})` : ' (docs disabled)'),
+  );
 }
 
 void bootstrap();

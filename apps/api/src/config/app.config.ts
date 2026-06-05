@@ -1,12 +1,17 @@
 import { registerAs } from '@nestjs/config';
 
-/** Strongly-typed app config namespace — inject via `ConfigService.get('app')`. */
+/**
+ * Strongly-typed app config namespace — the ONLY place (with database.config) that
+ * reads process.env. Everything else injects ConfigService and reads `app.*`.
+ * Flow: .env → validateEnv → these namespaces → ConfigService → instances.
+ */
 export const appConfig = registerAs('app', () => ({
   env: process.env.NODE_ENV ?? 'development',
   // Single root .env uses API_PORT; containers/compose set PORT, which wins.
   port: parseInt(process.env.PORT ?? process.env.API_PORT ?? '4400', 10),
   apiPrefix: process.env.API_PREFIX ?? 'api',
   corsOrigin: process.env.CORS_ORIGIN ?? '*',
+  logLevel: process.env.LOG_LEVEL ?? 'info',
   jwt: {
     // Required & validated at startup (see env.validation.ts) — no insecure fallback.
     secret: process.env.JWT_SECRET as string,
@@ -17,6 +22,15 @@ export const appConfig = registerAs('app', () => ({
   cookie: {
     // Cross-site in prod (web + api on different hosts) requires SameSite=None+Secure.
     secure: (process.env.NODE_ENV ?? 'development') === 'production',
+  },
+  swagger: {
+    enabled: (process.env.SWAGGER_ENABLED ?? 'true') !== 'false',
+    user: process.env.SWAGGER_USER ?? 'admin',
+    password: process.env.SWAGGER_PASSWORD ?? 'admin',
+  },
+  throttle: {
+    ttl: parseInt(process.env.THROTTLE_TTL_MS ?? '60000', 10),
+    limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
   },
 }));
 
