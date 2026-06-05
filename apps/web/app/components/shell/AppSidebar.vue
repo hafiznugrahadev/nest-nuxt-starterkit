@@ -16,7 +16,7 @@ interface NavItem {
 
 // Only existing routes — kept minimal per the starter kit's surface.
 const items: NavItem[] = [
-  { label: 'Dashboard', to: '/', icon: LayoutGrid },
+  { label: 'Dashboard', to: '/dashboard', icon: LayoutGrid },
   { label: 'Users', to: '/users', icon: Users, adminOnly: true },
 ];
 
@@ -25,7 +25,7 @@ const visibleItems = computed(() =>
 );
 
 function isActive(to: string) {
-  return to === '/' ? route.path === '/' : route.path.startsWith(to);
+  return route.path === to || route.path.startsWith(to + '/');
 }
 
 // The icon-only rail is a desktop concept; the mobile drawer is always full.
@@ -55,7 +55,11 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
         showFull ? 'px-6' : 'justify-center px-0',
       ]"
     >
-      <NuxtLink to="/" class="flex items-center gap-2.5 font-semibold" @click="closeMobile">
+      <NuxtLink
+        to="/dashboard"
+        class="flex items-center gap-2.5 font-semibold"
+        @click="closeMobile"
+      >
         <span
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
         >

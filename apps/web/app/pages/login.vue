@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useForm } from 'vee-validate';
+import { useForm, useField } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
 import { toast } from 'vue-sonner';
+import { Eye, EyeOff } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
+import { cn } from '~/lib/utils';
 
 definePageMeta({ layout: 'auth' });
 useHead({ title: `Sign In — ${APP_NAME}` });
@@ -13,6 +15,8 @@ useHead({ title: `Sign In — ${APP_NAME}` });
 const auth = useAuthStore();
 const route = useRoute();
 const submitting = ref(false);
+const showPassword = ref(false);
+const keepLoggedIn = ref(false);
 
 // FE-only Zod schema (BE validates with class-validator). Mirrors LoginDto.
 const schema = toTypedSchema(
@@ -23,13 +27,15 @@ const schema = toTypedSchema(
 );
 
 const { handleSubmit } = useForm({ validationSchema: schema });
+// Password is bound inline so we can render the show/hide toggle.
+const { value: password, errorMessage: passwordError } = useField<string>('password');
 
 const onSubmit = handleSubmit(async (values) => {
   submitting.value = true;
   try {
     await auth.login(values.email, values.password);
     toast.success('Welcome back!');
-    const redirect = (route.query.redirect as string) || '/';
+    const redirect = (route.query.redirect as string) || '/dashboard';
     await navigateTo(redirect);
   } catch {
     toast.error('Invalid email or password');
@@ -37,24 +43,131 @@ const onSubmit = handleSubmit(async (values) => {
     submitting.value = false;
   }
 });
+
+// Social providers are decorative in the starter kit — wire them up to your IdP.
+const notImplemented = (provider: string) =>
+  toast.info(`${provider} sign-in is not wired up in this starter kit.`);
 </script>
 
 <template>
   <div>
     <div class="mb-8">
       <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Sign In</h1>
-      <p class="mt-2 text-sm text-muted-foreground">
-        Enter your email and password to access your account.
-      </p>
+      <p class="mt-2 text-sm text-muted-foreground">Enter your email and password to sign in!</p>
+    </div>
+
+    <!-- Social sign-in -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <button
+        type="button"
+        class="inline-flex h-11 items-center justify-center gap-3 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        @click="notImplemented('Google')"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path
+            d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9088 16.6126L16.0925 16.6305C17.7799 15.1041 18.7511 12.8583 18.7511 10.1944Z"
+            fill="#4285F4"
+          />
+          <path
+            d="M10.1788 18.75C12.5895 18.75 14.6133 17.9722 16.0915 16.6305L13.274 14.4916C12.5201 15.0068 11.5081 15.3666 10.1788 15.3666C7.81773 15.3666 5.81379 13.8402 5.09944 11.7305L4.99517 11.7392L2.23903 13.8295L2.20312 13.9277C3.67139 16.786 6.69005 18.75 10.1788 18.75Z"
+            fill="#34A853"
+          />
+          <path
+            d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20383 6.0721C1.60582 7.25444 1.26172 8.58286 1.26172 9.99992C1.26172 11.417 1.60582 12.7454 2.20383 13.9277L5.10014 11.7305Z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M10.1788 4.63331C11.8559 4.63331 12.9874 5.35303 13.6321 5.95442L16.1509 3.49553C14.6035 2.06848 12.5895 1.25 10.1788 1.25C6.69005 1.25 3.67139 3.21443 2.20312 6.07268L5.08953 8.26943C5.81379 6.15972 7.81773 4.63331 10.1788 4.63331Z"
+            fill="#EB4335"
+          />
+        </svg>
+        Sign in with Google
+      </button>
+      <button
+        type="button"
+        class="inline-flex h-11 items-center justify-center gap-3 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        @click="notImplemented('X')"
+      >
+        <svg class="h-[18px] w-[18px] fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+          />
+        </svg>
+        Sign in with X
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center">
+        <span class="w-full border-t border-border" />
+      </div>
+      <div class="relative flex justify-center text-xs uppercase">
+        <span class="bg-background px-3 text-muted-foreground">Or</span>
+      </div>
     </div>
 
     <form class="space-y-5" @submit="onSubmit">
-      <TextField name="email" label="Email" type="email" placeholder="admin@starterkit.test" />
-      <TextField name="password" label="Password" type="password" placeholder="••••••••" />
-      <Button type="submit" size="lg" class="w-full" :disabled="submitting">
-        {{ submitting ? 'Signing in…' : 'Sign in' }}
+      <TextField name="email" type="email" placeholder="info@gmail.com">
+        <template #label>
+          Email
+          <span class="text-destructive">*</span>
+        </template>
+      </TextField>
+
+      <!-- Password with show/hide toggle -->
+      <div class="space-y-1.5">
+        <label for="password" class="text-sm font-medium leading-none">
+          Password
+          <span class="text-destructive">*</span>
+        </label>
+        <div class="relative">
+          <Input
+            id="password"
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="Enter your password"
+            :class="
+              cn('pr-10', passwordError && 'border-destructive focus-visible:ring-destructive')
+            "
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+            :aria-label="showPassword ? 'Hide password' : 'Show password'"
+            @click="showPassword = !showPassword"
+          >
+            <Eye v-if="showPassword" class="h-4 w-4" />
+            <EyeOff v-else class="h-4 w-4" />
+          </button>
+        </div>
+        <p v-if="passwordError" class="text-xs text-destructive">{{ passwordError }}</p>
+      </div>
+
+      <!-- Keep me logged in + forgot password -->
+      <div class="flex items-center justify-between">
+        <label class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+          <input
+            v-model="keepLoggedIn"
+            type="checkbox"
+            class="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+          />
+          Keep me logged in
+        </label>
+        <NuxtLink to="/forgot-password" class="text-sm font-medium text-primary hover:underline">
+          Forgot password?
+        </NuxtLink>
+      </div>
+
+      <Button type="submit" size="lg" class="h-11 w-full" :disabled="submitting">
+        {{ submitting ? 'Signing in…' : 'Sign In' }}
       </Button>
     </form>
+
+    <p class="mt-6 text-center text-sm text-muted-foreground">
+      Don't have an account?
+      <NuxtLink to="/register" class="font-medium text-primary hover:underline">Sign Up</NuxtLink>
+    </p>
 
     <div class="mt-6 rounded-xl border border-border bg-muted/50 px-4 py-3 text-center">
       <p class="text-xs text-muted-foreground">

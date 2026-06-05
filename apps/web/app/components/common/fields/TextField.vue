@@ -19,7 +19,9 @@ const { value, errorMessage } = useField<string>(toRef(props, 'name'));
 
 <template>
   <div class="space-y-1.5">
-    <label v-if="label" :for="name" class="text-sm font-medium leading-none">{{ label }}</label>
+    <label v-if="label || $slots.label" :for="name" class="text-sm font-medium leading-none">
+      <slot name="label">{{ label }}</slot>
+    </label>
     <Input
       :id="name"
       v-model="value"

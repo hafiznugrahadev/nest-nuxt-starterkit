@@ -9,7 +9,10 @@ useHead({ title: `Users — ${APP_NAME}` });
 
 <template>
   <div class="space-y-6">
-    <PageBreadcrumb title="Users" :crumbs="[{ label: 'Home', to: '/' }, { label: 'Users' }]" />
+    <PageBreadcrumb
+      title="Users"
+      :crumbs="[{ label: 'Dashboard', to: '/dashboard' }, { label: 'Users' }]"
+    />
 
     <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
       <div class="mb-5">

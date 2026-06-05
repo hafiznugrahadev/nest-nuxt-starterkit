@@ -11,7 +11,10 @@ const { data: user, isLoading, isError, error, refetch } = useMe();
 
 <template>
   <div class="space-y-6">
-    <PageBreadcrumb title="Profile" :crumbs="[{ label: 'Home', to: '/' }, { label: 'Profile' }]" />
+    <PageBreadcrumb
+      title="Profile"
+      :crumbs="[{ label: 'Dashboard', to: '/dashboard' }, { label: 'Profile' }]"
+    />
 
     <LoadingState v-if="isLoading && !user" />
     <ErrorState v-else-if="isError" :message="(error as Error)?.message" @retry="refetch()" />
