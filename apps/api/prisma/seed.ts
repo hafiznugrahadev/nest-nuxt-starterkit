@@ -11,12 +11,29 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Roles are data (M2M). Upsert the well-known ones; add more rows freely.
-  const [adminRole, userRole] = await Promise.all([
+  const [superRole, adminRole, userRole] = await Promise.all([
+    prisma.role.upsert({
+      where: { name: 'SUPER_ADMIN' },
+      update: {},
+      create: { name: 'SUPER_ADMIN' },
+    }),
     prisma.role.upsert({ where: { name: 'ADMIN' }, update: {}, create: { name: 'ADMIN' } }),
     prisma.role.upsert({ where: { name: 'USER' }, update: {}, create: { name: 'USER' } }),
   ]);
 
-  // Admin holds BOTH roles (demonstrates a multi-role user); `set` keeps re-seeds idempotent.
+  // Super admin manages users (CRUD). `set` keeps re-seeds idempotent.
+  const superAdmin = await prisma.user.upsert({
+    where: { email: 'superadmin@starterkit.test' },
+    update: { roles: { set: [{ id: superRole.id }, { id: adminRole.id }, { id: userRole.id }] } },
+    create: {
+      email: 'superadmin@starterkit.test',
+      name: 'Super Admin',
+      password: await hashPassword('super1234'),
+      roles: { connect: [{ id: superRole.id }, { id: adminRole.id }, { id: userRole.id }] },
+    },
+  });
+
+  // Admin holds two roles (demonstrates a multi-role user).
   const admin = await prisma.user.upsert({
     where: { email: 'admin@starterkit.test' },
     update: { roles: { set: [{ id: adminRole.id }, { id: userRole.id }] } },
@@ -39,7 +56,11 @@ async function main() {
     },
   });
 
-  console.log('Seed complete:', { admin: admin.email, user: user.email, roles: ['ADMIN', 'USER'] });
+  console.log('Seed complete:', {
+    superAdmin: superAdmin.email,
+    admin: admin.email,
+    user: user.email,
+  });
 }
 
 main()

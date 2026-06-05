@@ -4,6 +4,7 @@
  * without pulling in a runtime enum, while BE re-exports it for class-validator `@IsEnum`.
  */
 export const UserRole = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   USER: 'USER',
 } as const;

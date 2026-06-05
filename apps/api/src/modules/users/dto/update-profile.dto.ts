@@ -1,0 +1,15 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, MinLength } from 'class-validator';
+
+/**
+ * Self-service profile update for the *authenticated* user. Deliberately narrow:
+ * only the display name is editable here — email is immutable and roles can never
+ * be changed by the user themselves (that stays a SUPER_ADMIN action).
+ */
+export class UpdateProfileDto {
+  @ApiPropertyOptional({ example: 'Jane Doe' })
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  name?: string;
+}

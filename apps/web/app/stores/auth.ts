@@ -24,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
     isAdmin: (state) => state.user?.roles?.includes(UserRole.ADMIN) ?? false,
+    isSuperAdmin: (state) => state.user?.roles?.includes(UserRole.SUPER_ADMIN) ?? false,
   },
   actions: {
     /** Base URL of the API, read from runtime config. */

@@ -95,12 +95,9 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
       </ul>
     </nav>
 
-    <!-- Footer / version -->
-    <div v-if="showFull" class="border-t border-border p-4">
-      <div class="rounded-xl bg-muted px-4 py-3 text-xs text-muted-foreground">
-        <p class="font-medium text-foreground">{{ APP_NAME }}</p>
-        <p>NestJS + Nuxt starter</p>
-      </div>
+    <!-- Footer — user dropdown (same menu as the top-right header) -->
+    <div :class="['border-t border-border', showFull ? 'p-3' : 'flex justify-center p-2']">
+      <UserMenu variant="full" placement="up" :show-details="showFull" />
     </div>
   </aside>
 </template>

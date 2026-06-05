@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useUsers } from '../composables/useUsers';
-import { userColumns } from './user-columns';
+import { Plus, Pencil, Trash2, Search } from 'lucide-vue-next';
+import type { User } from '@starterkit/shared-types';
+import { useAuthStore } from '~/stores/auth';
+import { useUsers, useDeleteUser } from '../composables/useUsers';
+import UserFormModal from './UserFormModal.vue';
 import type { UserListParams } from '../types';
+
+const auth = useAuthStore();
+const canManage = computed(() => auth.isSuperAdmin);
 
 const search = ref('');
 const page = ref(1);
-
 const params = computed<UserListParams>(() => ({
   page: page.value,
   limit: 10,
@@ -16,26 +21,185 @@ const params = computed<UserListParams>(() => ({
 const { data, isLoading, isError, error, refetch } = useUsers(params);
 const rows = computed(() => data.value?.data ?? []);
 const meta = computed(() => data.value?.meta);
+
+// Create / edit modal
+const formOpen = ref(false);
+const editing = ref<User | null>(null);
+function openCreate() {
+  editing.value = null;
+  formOpen.value = true;
+}
+function openEdit(user: User) {
+  editing.value = user;
+  formOpen.value = true;
+}
+
+// Delete confirm
+const remove = useDeleteUser();
+const deleteTarget = ref<User | null>(null);
+const confirmOpen = ref(false);
+function askDelete(user: User) {
+  deleteTarget.value = user;
+  confirmOpen.value = true;
+}
+async function confirmDelete() {
+  if (!deleteTarget.value) return;
+  try {
+    await remove.mutateAsync(deleteTarget.value.id);
+    confirmOpen.value = false;
+  } catch {
+    /* toast handled by useApiMutation */
+  }
+}
+
+const roleVariant: Record<string, string> = {
+  SUPER_ADMIN: 'default',
+  ADMIN: 'secondary',
+  USER: 'muted',
+};
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
 </script>
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between gap-2">
-      <Input v-model="search" placeholder="Search users…" class="max-w-xs" />
-      <span v-if="meta" class="text-sm text-muted-foreground">
-        {{ meta.total }} user{{ meta.total === 1 ? '' : 's' }}
-      </span>
+    <!-- Toolbar -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="relative max-w-xs">
+        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          v-model="search"
+          placeholder="Search users…"
+          class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10"
+        />
+      </div>
+      <Button v-if="canManage" size="sm" @click="openCreate">
+        <Plus class="h-4 w-4" />
+        Add user
+      </Button>
     </div>
 
     <ErrorState v-if="isError" :message="(error as Error)?.message" @retry="refetch()" />
-    <DataTable v-else :columns="userColumns" :data="rows" :is-loading="isLoading" />
+    <LoadingState v-else-if="isLoading" />
+    <EmptyState
+      v-else-if="rows.length === 0"
+      title="No users found"
+      description="Try a different search, or add a new user."
+    />
 
-    <div v-if="meta && meta.totalPages > 1" class="flex items-center justify-end gap-2">
-      <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">Prev</Button>
-      <span class="text-sm">Page {{ meta.page }} / {{ meta.totalPages }}</span>
-      <Button variant="outline" size="sm" :disabled="page >= meta.totalPages" @click="page++">
-        Next
-      </Button>
+    <!-- TailAdmin-style table -->
+    <div v-else class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead>
+          <tr class="border-y border-border">
+            <th
+              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              User
+            </th>
+            <th
+              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Roles
+            </th>
+            <th
+              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Joined
+            </th>
+            <th
+              v-if="canManage"
+              class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Action
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          <tr v-for="u in rows" :key="u.id" class="transition-colors hover:bg-muted/40">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600"
+                >
+                  {{ initials(u.name) }}
+                </div>
+                <div class="min-w-0">
+                  <span class="block truncate text-sm font-medium text-foreground">{{
+                    u.name
+                  }}</span>
+                  <span class="block truncate text-xs text-muted-foreground">{{ u.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-4">
+              <div class="flex flex-wrap gap-1">
+                <Badge
+                  v-for="role in u.roles"
+                  :key="role"
+                  :variant="(roleVariant[role] ?? 'outline') as never"
+                >
+                  {{ role }}
+                </Badge>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-sm text-muted-foreground">{{ joined(u.createdAt) }}</td>
+            <td v-if="canManage" class="px-5 py-4">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  title="Edit"
+                  @click="openEdit(u)"
+                >
+                  <Pencil class="h-4 w-4" />
+                </button>
+                <button
+                  class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-error-50 hover:text-error-500"
+                  title="Delete"
+                  @click="askDelete(u)"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
+    <!-- Pagination -->
+    <div v-if="meta && meta.totalPages > 1" class="flex items-center justify-between">
+      <span class="text-sm text-muted-foreground">{{ meta.total }} users</span>
+      <div class="flex items-center gap-2">
+        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">Prev</Button>
+        <span class="text-sm">Page {{ meta.page }} / {{ meta.totalPages }}</span>
+        <Button variant="outline" size="sm" :disabled="page >= meta.totalPages" @click="page++">
+          Next
+        </Button>
+      </div>
+    </div>
+
+    <!-- Create / edit -->
+    <UserFormModal v-model:open="formOpen" :user="editing" @saved="refetch()" />
+
+    <!-- Delete confirm -->
+    <Modal v-model:open="confirmOpen" title="Delete user">
+      <p class="text-sm text-muted-foreground">
+        Delete <span class="font-medium text-foreground">{{ deleteTarget?.name }}</span
+        >? This cannot be undone.
+      </p>
+      <div class="mt-6 flex justify-end gap-3">
+        <Button variant="outline" @click="confirmOpen = false">Cancel</Button>
+        <Button variant="destructive" :disabled="remove.isPending.value" @click="confirmDelete">
+          {{ remove.isPending.value ? 'Deleting…' : 'Delete' }}
+        </Button>
+      </div>
+    </Modal>
   </div>
 </template>

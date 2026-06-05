@@ -1,30 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Bell, ChevronDown, LogOut, Menu, Search, User as UserIcon } from 'lucide-vue-next';
-import { toast } from 'vue-sonner';
-import { useAuthStore } from '~/stores/auth';
+import { Bell, Menu, Search } from 'lucide-vue-next';
 
-const auth = useAuthStore();
 const { toggleMobile, toggleExpanded } = useSidebar();
-
-const menuOpen = ref(false);
-
-async function onLogout() {
-  menuOpen.value = false;
-  await auth.logout();
-  toast.success('Signed out');
-  await navigateTo('/login');
-}
-
-const initials = computed(() => {
-  const name = auth.user?.name?.trim();
-  if (!name) return 'U';
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join('');
-});
 </script>
 
 <template>
@@ -84,56 +61,7 @@ const initials = computed(() => {
           />
         </button>
 
-        <!-- User menu -->
-        <ClientOnly>
-          <div v-if="auth.isAuthenticated" class="relative">
-            <button
-              type="button"
-              class="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-accent"
-              @click="menuOpen = !menuOpen"
-            >
-              <span
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white"
-              >
-                {{ initials }}
-              </span>
-              <span class="hidden text-sm font-medium text-foreground sm:inline">
-                {{ auth.user?.name }}
-              </span>
-              <ChevronDown class="hidden h-4 w-4 text-muted-foreground sm:inline" />
-            </button>
-
-            <template v-if="menuOpen">
-              <!-- click-away catcher -->
-              <button class="fixed inset-0 z-40 cursor-default" @click="menuOpen = false" />
-              <div
-                class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-card shadow-theme-md"
-              >
-                <div class="border-b border-border px-4 py-3">
-                  <p class="truncate text-sm font-medium text-foreground">{{ auth.user?.name }}</p>
-                  <p class="truncate text-xs text-muted-foreground">{{ auth.user?.email }}</p>
-                </div>
-                <div class="p-1.5">
-                  <button
-                    class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    @click="menuOpen = false"
-                  >
-                    <UserIcon class="h-4 w-4" />
-                    Profile
-                  </button>
-                  <button
-                    class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
-                    @click="onLogout"
-                  >
-                    <LogOut class="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
-              </div>
-            </template>
-          </div>
-          <Button v-else variant="outline" size="sm" @click="navigateTo('/login')">Login</Button>
-        </ClientOnly>
+        <UserMenu />
       </div>
     </div>
   </header>
