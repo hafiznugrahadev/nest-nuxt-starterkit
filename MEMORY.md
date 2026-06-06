@@ -265,3 +265,17 @@ Read this file at the start of every session. Never contradict a logged decision
 - Single-role / client-side filtering — the BE is the source of truth; filtering is server-side and supports multiple roles.
 - Keeping the old `?role=` param — with `forbidNonWhitelisted` the renamed `roles` is the only accepted filter (old `?role=` now 400s).
 - Migrating UserTable onto `DataTable` now — high churn (actions/avatar columns + E2E selectors) for no user-visible gain.
+
+---
+
+## 2026-06-06, Dev file storage — RustFS in docker-compose, S3 driver passthrough
+
+**What was decided:** Added a `rustfs` service to the dev `docker-compose.yml` (`rustfs/rustfs:latest`, port 9000 API + 9001 console, named volume `rustfs_data`, runs as UID 10001). The `api` service now passes through all S3 env vars (`STORAGE_DRIVER`, `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE`, `S3_REGION`, `S3_PUBLIC_BASE_URL`) with safe defaults pointing at the compose-internal `http://rustfs:9000`. `STORAGE_DRIVER` defaults to `local` so existing setups are unaffected. `api` depends_on `rustfs: service_started`. RustFS credentials are driven by the same `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` vars (default `rustfsadmin`/`rustfsadmin`). OrbStack domain fix: `CORS_ORIGIN` and `NUXT_PUBLIC_API_BASE` in compose now use `${VAR:-default}` so they can be overridden from `.env` (needed when the browser hits `https://web.starterkit-dev.orb.local` instead of `localhost`).
+
+**Why:** The existing S3 driver (`s3.driver.ts`) already supports RustFS. Adding RustFS to compose completes the dev stack so devs can switch to `STORAGE_DRIVER=s3` with a single `.env` line. Named volume (not bind mount) avoids the UID 10001 chown requirement. `S3_PUBLIC_BASE_URL` defaults to `http://localhost:9000/starterkit` so the browser can access uploaded files directly (the S3 driver falls back to `endpoint/bucket/key` when no `publicBaseUrl` is set — that would embed the docker-internal hostname `rustfs` in URLs, which browsers can't reach).
+
+**What was rejected:**
+
+- Bind-mounting `/data` to a host path — requires `chown -R 10001:10001` on the host dir before first run; a named volume is zero-config.
+- Making RustFS a Docker Compose profile — the service is lightweight; always-on keeps the dev stack consistent.
+- Separate `S3_ACCESS_KEY`/`S3_SECRET_KEY` vars for RustFS — reusing `S3_ACCESS_KEY_ID`/`S3_SECRET_ACCESS_KEY` means the same `.env` values drive both RustFS at startup and the NestJS S3 driver, no duplication.

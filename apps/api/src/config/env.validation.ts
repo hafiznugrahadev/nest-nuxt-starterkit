@@ -137,15 +137,16 @@ export class EnvironmentVariables {
   @IsOptional()
   MAIL_SMTP_PASSWORD?: string;
 
+  // ── App URL (single source of truth for the frontend URL) ─────────────────
+  @IsString()
+  @IsOptional()
+  APP_URL = 'http://localhost:4300';
+
   // ── Password reset ─────────────────────────────────────────────────────────
   @Type(() => Number)
   @IsInt()
   @IsOptional()
   PASSWORD_RESET_TTL_MIN = 30;
-
-  @IsString()
-  @IsOptional()
-  PASSWORD_RESET_URL = 'http://localhost:4300/reset-password';
 
   // ── Self-service registration (off by default; kit is admin-provisioned) ────
   @Transform(toBool)

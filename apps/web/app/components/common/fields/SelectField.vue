@@ -115,7 +115,7 @@ const isEmpty = computed(() => (props.multiple ? !multiValues.value.length : !si
         </button>
       </PopoverTrigger>
       <PopoverContent
-        class="rounded-md border bg-popover p-0 text-popover-foreground shadow-md"
+        class="rounded-md border bg-card p-0 text-card-foreground shadow-md"
         :style="{ width: 'var(--reka-popover-trigger-width)' }"
         :side-offset="4"
       >

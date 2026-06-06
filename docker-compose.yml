@@ -46,6 +46,29 @@ services:
       retries: 5
     networks: [dokploy-network]
 
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: starterkit-rustfs
+    restart: unless-stopped
+    user: '10001:10001'
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY_ID:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_ADDRESS: ':9000'
+      RUSTFS_CONSOLE_ENABLE: 'true'
+    ports:
+      - '${RUSTFS_API_PORT:-9000}:9000'
+      - '${RUSTFS_CONSOLE_PORT:-9001}:9001'
+    volumes:
+      - rustfs_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:9000/healthz/live > /dev/null 2>&1 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [dokploy-network]
+
   api:
     image: oven/bun:1.3.3
     container_name: starterkit-api-dev
@@ -64,7 +87,11 @@ services:
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-min-16-chars}
       JWT_EXPIRES_IN: 15m
       JWT_REFRESH_EXPIRES_DAYS: 7
-      CORS_ORIGIN: http://localhost:${WEB_PORT:-4300}
+      # Base URL of the frontend — single source of truth (like Laravel APP_URL).
+      # Set APP_URL in .env to override (e.g. https://web.starterkit-dev.orb.local).
+      APP_URL: ${APP_URL:-http://localhost:${WEB_PORT:-4300}}
+      # CORS_ORIGIN defaults to APP_URL in code; set only to explicitly override.
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
       LOG_LEVEL: debug
       # Dev/E2E: skip rate limiting so rapid test runs aren't throttled.
       THROTTLE_DISABLED: ${THROTTLE_DISABLED:-true}
@@ -77,9 +104,17 @@ services:
       MAIL_SMTP_HOST: mailpit
       MAIL_SMTP_PORT: 1025
       MAIL_SMTP_SECURE: 'false'
-      PASSWORD_RESET_URL: http://localhost:${WEB_PORT:-4300}/reset-password
       # Self-service registration (dev: on). Keep the API + web flags in sync.
       AUTH_REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
+      # File storage — defaults to local; set STORAGE_DRIVER=s3 in .env to use RustFS.
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://rustfs:9000}
+      S3_BUCKET: ${S3_BUCKET:-starterkit}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-rustfsadmin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-rustfsadmin}
+      S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE:-true}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_PUBLIC_BASE_URL: ${S3_PUBLIC_BASE_URL:-http://localhost:9000/starterkit}
     ports:
       - '${API_PORT:-4400}:${API_PORT:-4400}'
     volumes:
@@ -91,6 +126,8 @@ services:
       redis:
         condition: service_healthy
       mailpit:
+        condition: service_started
+      rustfs:
         condition: service_started
     networks: [dokploy-network]
 
@@ -106,7 +143,7 @@ services:
       PORT: ${WEB_PORT:-4300}
       HOST: 0.0.0.0
       # Client-side calls hit the host-mapped API port.
-      NUXT_PUBLIC_API_BASE: http://localhost:${API_PORT:-4400}/api
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost:${API_PORT:-4400}/api}
       NUXT_PUBLIC_REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
       # Bind-mount file events don't cross into the container on macOS/Windows,
       # so Vite must poll for HMR to work. See nuxt.config.ts.
@@ -139,5 +176,6 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  rustfs_data:
   api_node_modules:
   web_node_modules:

@@ -10,7 +10,10 @@ export const appConfig = registerAs('app', () => ({
   // Single root .env uses API_PORT; containers/compose set PORT, which wins.
   port: parseInt(process.env.PORT ?? process.env.API_PORT ?? '4400', 10),
   apiPrefix: process.env.API_PREFIX ?? 'api',
-  corsOrigin: process.env.CORS_ORIGIN ?? '*',
+  // Frontend base URL — single source of truth (like Laravel's APP_URL).
+  appUrl: process.env.APP_URL || 'http://localhost:4300',
+  // CORS origin defaults to APP_URL; explicit CORS_ORIGIN overrides (e.g. multiple origins).
+  corsOrigin: process.env.CORS_ORIGIN || process.env.APP_URL || '*',
   logLevel: process.env.LOG_LEVEL ?? 'info',
   jwt: {
     // Required & validated at startup (see env.validation.ts) — no insecure fallback.
@@ -36,8 +39,8 @@ export const appConfig = registerAs('app', () => ({
   },
   passwordReset: {
     ttlMinutes: parseInt(process.env.PASSWORD_RESET_TTL_MIN ?? '30', 10),
-    // Frontend page the emailed reset link points to (token appended as ?token=).
-    url: process.env.PASSWORD_RESET_URL ?? 'http://localhost:4300/reset-password',
+    // Derived from APP_URL — no separate env var needed.
+    url: `${process.env.APP_URL || 'http://localhost:4300'}/reset-password`,
   },
   registration: {
     // Off by default (kit is admin-provisioned); opt in for self-service sign-up.
