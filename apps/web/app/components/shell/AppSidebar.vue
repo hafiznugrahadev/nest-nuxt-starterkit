@@ -21,8 +21,19 @@ const items: NavItem[] = [
   { label: 'nav.fieldsDemo', to: '/demo/fields', icon: FlaskConical },
 ];
 
+// Auth roles are only known on the client (the access token lives in memory), so
+// admin-only items must stay hidden until after mount. Rendering them during SSR
+// — or on the client's first (hydration) pass — would make the server nav (guest
+// view) and the hydrated client nav (authed view) diverge, which Vue reports as a
+// hydration mismatch. `import.meta.client` is already true during hydration, so a
+// post-mount flag is what keeps the first client render identical to the server's.
+const mounted = ref(false);
+onMounted(() => {
+  mounted.value = true;
+});
+
 const visibleItems = computed(() =>
-  items.filter((i) => !i.adminOnly || (auth.isAuthenticated && auth.isAdmin)),
+  items.filter((i) => !i.adminOnly || (mounted.value && auth.isAuthenticated && auth.isAdmin)),
 );
 
 function isActive(to: string) {

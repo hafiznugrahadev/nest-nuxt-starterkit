@@ -1,5 +1,31 @@
 import tailwindcss from '@tailwindcss/vite';
 
+// Derive the dev HMR transport from the public APP_URL. Behind OrbStack's HTTPS
+// proxy (e.g. https://web.starterkit-dev.orb.local) the browser loads the app on
+// port 443, but Vite can't infer where to open the HMR WebSocket and falls back
+// to the container port (localhost:5173) — which the browser can't reach, so HMR
+// silently dies and edits need a manual refresh. Pointing the client at wss://
+// <host>:443 routes the socket back through the same proxy to the dev server.
+// Plain localhost dev keeps APP_URL=http://localhost:… and needs no override
+// (native ws on the dev port already works).
+function resolveDevHmr() {
+  const appUrl = process.env.APP_URL;
+  if (!appUrl) return undefined;
+  let url: URL;
+  try {
+    url = new URL(appUrl);
+  } catch {
+    return undefined;
+  }
+  if (url.protocol !== 'https:') return undefined;
+  return {
+    protocol: 'wss' as const,
+    host: url.hostname,
+    clientPort: url.port ? Number(url.port) : 443,
+  };
+}
+const devHmr = resolveDevHmr();
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
@@ -45,7 +71,29 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      // Pinia statically imports `setupDevtoolsPlugin` from `@vue/devtools-api`,
+      // which ships only a bare CJS `main` (no `exports` map). Under Bun's `.bun`
+      // layout Vite serves that CommonJS file raw to the browser, which throws
+      // `exports is not defined`. Redirect the import to the package's ESM build
+      // — but ONLY for the client (`!options.ssr`). The SSR build resolves CJS
+      // natively in Node; swapping it there corrupts pinia's payload
+      // serialization. A plugin `resolveId` is the one place Vite reliably tells
+      // us client-vs-server (Nuxt's `vite:extendConfig` shares one config and
+      // leaks the change into SSR).
+      {
+        name: 'starterkit:devtools-api-client-esm',
+        enforce: 'pre',
+        async resolveId(source, importer, options) {
+          if (source !== '@vue/devtools-api' || options.ssr || !importer) return null;
+          const esm = await this.resolve('@vue/devtools-api/lib/esm/index.js', importer, {
+            skipSelf: true,
+          });
+          return esm?.id ?? null;
+        },
+      },
+    ],
     // Bundle these (instead of externalizing) so named ESM exports survive the
     // dev SSR transform under Bun — otherwise `import { z } from 'zod'` is
     // undefined server-side. Prod (Nitro) already inlines them.
@@ -55,12 +103,14 @@ export default defineNuxtConfig({
     // In Docker on macOS/Windows, bind-mount file events don't reach the container,
     // so HMR needs polling to detect edits. Enabled only when NUXT_DEV_POLLING=true
     // (set by the dev compose) — local dev keeps native, CPU-friendly watching.
-    // The HMR websocket is served by Nuxt on the main dev port (already published),
-    // so no separate hmr port/host is configured here.
-    server:
-      process.env.NUXT_DEV_POLLING === 'true'
+    // `hmr` is set only behind the OrbStack HTTPS proxy (see resolveDevHmr above);
+    // it routes the HMR WebSocket back through wss://<host>:443 to the dev server.
+    server: {
+      ...(process.env.NUXT_DEV_POLLING === 'true'
         ? { watch: { usePolling: true, interval: 300 } }
-        : undefined,
+        : {}),
+      ...(devHmr ? { hmr: devHmr } : {}),
+    },
   },
 
   // ── SPEC: Auto-import boundary strategy ──────────────────────────────────────

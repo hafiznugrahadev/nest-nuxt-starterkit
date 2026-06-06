@@ -31,7 +31,11 @@ const roleOptions = computed(() => [
 ]);
 function toggleRole(value: string) {
   const next = new Set(selectedRoles.value);
-  next.has(value) ? next.delete(value) : next.add(value);
+  if (next.has(value)) {
+    next.delete(value);
+  } else {
+    next.add(value);
+  }
   selectedRoles.value = [...next];
   page.value = 1;
 }

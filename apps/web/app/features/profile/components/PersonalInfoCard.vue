@@ -9,8 +9,6 @@ import { useUpdateProfile } from '../composables/useProfile';
 
 const props = defineProps<{ user: User }>();
 
-const { t } = useI18n();
-
 const editing = ref(false);
 const update = useUpdateProfile();
 

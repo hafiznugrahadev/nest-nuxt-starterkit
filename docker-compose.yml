@@ -142,6 +142,10 @@ services:
       NODE_ENV: development
       PORT: ${WEB_PORT:-4300}
       HOST: 0.0.0.0
+      # Public URL the browser uses. Drives the HMR WebSocket transport: behind the
+      # OrbStack HTTPS proxy (https://web.…orb.local) Vite must point the client at
+      # wss://<host>:443 or hot-reload can't connect. See nuxt.config.ts.
+      APP_URL: ${APP_URL:-http://localhost:${WEB_PORT:-4300}}
       # Client-side calls hit the host-mapped API port.
       NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost:${API_PORT:-4400}/api}
       NUXT_PUBLIC_REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}

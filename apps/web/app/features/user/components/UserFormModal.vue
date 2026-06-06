@@ -17,8 +17,6 @@ const open = defineModel<boolean>('open', { default: false });
 const props = defineProps<{ user?: User | null }>();
 const emit = defineEmits<{ saved: [] }>();
 
-const { t } = useI18n();
-
 const isEdit = computed(() => !!props.user);
 const ALL_ROLES = [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.USER];
 
