@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useForm, useField } from 'vee-validate';
+import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
 import { toast } from 'vue-sonner';
-import { Eye, EyeOff } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
-import { cn } from '~/lib/utils';
 
 definePageMeta({ layout: 'auth' });
 useHead({ title: `Sign In — ${APP_NAME}` });
@@ -15,7 +13,6 @@ useHead({ title: `Sign In — ${APP_NAME}` });
 const auth = useAuthStore();
 const route = useRoute();
 const submitting = ref(false);
-const showPassword = ref(false);
 const keepLoggedIn = ref(false);
 
 // FE-only Zod schema (BE validates with class-validator). Mirrors LoginDto.
@@ -27,8 +24,6 @@ const schema = toTypedSchema(
 );
 
 const { handleSubmit } = useForm({ validationSchema: schema });
-// Password is bound inline so we can render the show/hide toggle.
-const { value: password, errorMessage: passwordError } = useField<string>('password');
 
 const onSubmit = handleSubmit(async (values) => {
   submitting.value = true;
@@ -108,41 +103,9 @@ const notImplemented = (provider: string) =>
     </div>
 
     <form class="space-y-5" @submit="onSubmit">
-      <TextField name="email" type="email" placeholder="info@gmail.com">
-        <template #label>
-          Email
-          <span class="text-destructive">*</span>
-        </template>
-      </TextField>
+      <TextField name="email" label="Email" type="email" placeholder="info@gmail.com" required />
 
-      <!-- Password with show/hide toggle -->
-      <div class="space-y-1.5">
-        <label for="password" class="text-sm font-medium leading-none">
-          Password
-          <span class="text-destructive">*</span>
-        </label>
-        <div class="relative">
-          <Input
-            id="password"
-            v-model="password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="Enter your password"
-            :class="
-              cn('pr-10', passwordError && 'border-destructive focus-visible:ring-destructive')
-            "
-          />
-          <button
-            type="button"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-            :aria-label="showPassword ? 'Hide password' : 'Show password'"
-            @click="showPassword = !showPassword"
-          >
-            <Eye v-if="showPassword" class="h-4 w-4" />
-            <EyeOff v-else class="h-4 w-4" />
-          </button>
-        </div>
-        <p v-if="passwordError" class="text-xs text-destructive">{{ passwordError }}</p>
-      </div>
+      <PasswordField name="password" label="Password" placeholder="Enter your password" required />
 
       <!-- Keep me logged in + forgot password -->
       <div class="flex items-center justify-between">

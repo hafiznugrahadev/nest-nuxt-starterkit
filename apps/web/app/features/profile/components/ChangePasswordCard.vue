@@ -41,21 +41,11 @@ const onSubmit = handleSubmit(async (values) => {
 
     <form class="mt-5 space-y-5" @submit="onSubmit">
       <div class="max-w-md">
-        <TextField
-          name="currentPassword"
-          label="Current password"
-          type="password"
-          placeholder="••••••••"
-        />
+        <PasswordField name="currentPassword" label="Current password" placeholder="••••••••" />
       </div>
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <TextField name="newPassword" label="New password" type="password" placeholder="••••••••" />
-        <TextField
-          name="confirmPassword"
-          label="Confirm new password"
-          type="password"
-          placeholder="••••••••"
-        />
+        <PasswordField name="newPassword" label="New password" placeholder="••••••••" />
+        <PasswordField name="confirmPassword" label="Confirm new password" placeholder="••••••••" />
       </div>
 
       <div class="flex justify-end">

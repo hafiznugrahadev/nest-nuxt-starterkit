@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Boxes, LayoutGrid, Users, type LucideIcon } from 'lucide-vue-next';
+import { Boxes, FlaskConical, LayoutGrid, Users, type LucideIcon } from 'lucide-vue-next';
 import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
 
@@ -18,6 +18,7 @@ interface NavItem {
 const items: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutGrid },
   { label: 'Users', to: '/users', icon: Users, adminOnly: true },
+  { label: 'Fields Demo', to: '/demo/fields', icon: FlaskConical },
 ];
 
 const visibleItems = computed(() =>
@@ -49,12 +50,7 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
     ]"
   >
     <!-- Brand -->
-    <div
-      :class="[
-        'flex h-16 items-center border-b border-border',
-        showFull ? 'px-6' : 'justify-center px-0',
-      ]"
-    >
+    <div :class="['flex h-16 items-center', showFull ? 'px-6' : 'justify-center px-0']">
       <NuxtLink
         to="/dashboard"
         class="flex items-center gap-2.5 font-semibold"
