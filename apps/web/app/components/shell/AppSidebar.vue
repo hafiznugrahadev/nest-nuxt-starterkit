@@ -16,9 +16,9 @@ interface NavItem {
 
 // Only existing routes — kept minimal per the starter kit's surface.
 const items: NavItem[] = [
-  { label: 'Dashboard', to: '/dashboard', icon: LayoutGrid },
-  { label: 'Users', to: '/users', icon: Users, adminOnly: true },
-  { label: 'Fields Demo', to: '/demo/fields', icon: FlaskConical },
+  { label: 'nav.dashboard', to: '/dashboard', icon: LayoutGrid },
+  { label: 'nav.users', to: '/users', icon: Users, adminOnly: true },
+  { label: 'nav.fieldsDemo', to: '/demo/fields', icon: FlaskConical },
 ];
 
 const visibleItems = computed(() =>
@@ -73,7 +73,7 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
           showFull ? 'px-2' : 'text-center',
         ]"
       >
-        {{ showFull ? 'Menu' : '•••' }}
+        {{ showFull ? $t('nav.menu') : '•••' }}
       </p>
       <ul class="space-y-1.5">
         <li v-for="item in visibleItems" :key="item.to">
@@ -89,7 +89,7 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
             @click="closeMobile"
           >
             <component :is="item.icon" class="h-5 w-5 shrink-0" />
-            <span v-if="showFull">{{ item.label }}</span>
+            <span v-if="showFull">{{ $t(item.label) }}</span>
           </NuxtLink>
         </li>
       </ul>

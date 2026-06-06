@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Plus, Pencil, Trash2, Search } from 'lucide-vue-next';
-import type { User } from '@starterkit/shared-types';
+import { UserRole, type User } from '@starterkit/shared-types';
 import { useAuthStore } from '~/stores/auth';
 import { useUsers, useDeleteUser } from '../composables/useUsers';
 import UserFormModal from './UserFormModal.vue';
@@ -11,12 +11,32 @@ const auth = useAuthStore();
 const canManage = computed(() => auth.isSuperAdmin);
 
 const search = ref('');
+const selectedRoles = ref<string[]>([]);
 const page = ref(1);
 const params = computed<UserListParams>(() => ({
   page: page.value,
   limit: 10,
   search: search.value || undefined,
+  // Server-side filter: the API is the source of truth (no client-side filtering).
+  roles: selectedRoles.value.length ? [...selectedRoles.value] : undefined,
 }));
+
+// Role filter as multi-select tags — the API returns users holding ANY selected role.
+const roleOptions = [
+  { label: 'Super Admin', value: UserRole.SUPER_ADMIN },
+  { label: 'Admin', value: UserRole.ADMIN },
+  { label: 'User', value: UserRole.USER },
+] as const;
+function toggleRole(value: string) {
+  const next = new Set(selectedRoles.value);
+  next.has(value) ? next.delete(value) : next.add(value);
+  selectedRoles.value = [...next];
+  page.value = 1;
+}
+function clearRoles() {
+  selectedRoles.value = [];
+  page.value = 1;
+}
 
 const { data, isLoading, isError, error, refetch } = useUsers(params);
 const rows = computed(() => data.value?.data ?? []);
@@ -70,14 +90,45 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
 <template>
   <div class="space-y-4">
     <!-- Toolbar -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div class="relative max-w-xs">
-        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          v-model="search"
-          placeholder="Search users…"
-          class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10"
-        />
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div class="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+        <div class="relative max-w-xs">
+          <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            v-model="search"
+            placeholder="Search users…"
+            class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10"
+          />
+        </div>
+        <!-- Role filter as multi-select tags (server-side; API is source of truth) -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            :class="[
+              'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              selectedRoles.length === 0
+                ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15'
+                : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground',
+            ]"
+            @click="clearRoles"
+          >
+            All
+          </button>
+          <button
+            v-for="opt in roleOptions"
+            :key="opt.value"
+            type="button"
+            :class="[
+              'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              selectedRoles.includes(opt.value)
+                ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15'
+                : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground',
+            ]"
+            @click="toggleRole(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
       </div>
       <Button v-if="canManage" size="sm" @click="openCreate">
         <Plus class="h-4 w-4" />

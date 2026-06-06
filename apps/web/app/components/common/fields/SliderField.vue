@@ -17,7 +17,7 @@ const { value, errorMessage } = useField<number>(toRef(props, 'name'));
 const sliderValue = computed({
   get: () => [value.value ?? props.min ?? 0],
   set: (v: number[]) => {
-    value.value = v[0];
+    value.value = v[0] ?? props.min ?? 0;
   },
 });
 </script>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useForm, useFormValues } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
 import { toast } from 'vue-sonner';
+import { useUpload } from '~/composables/useUpload';
 import { APP_NAME } from '~/lib/constants';
 
 definePageMeta({ layout: 'dashboard', middleware: ['auth'] });
@@ -41,12 +42,33 @@ const { handleSubmit } = useForm({
 const rawValues = useFormValues();
 
 const displayValues = computed(() => {
-  const copy: Record<string, unknown> = { ...rawValues };
+  const copy: Record<string, unknown> = { ...rawValues.value };
   if (copy.avatar instanceof File) copy.avatar = copy.avatar.name;
   return copy;
 });
 
-const onSubmit = handleSubmit(() => {
+const { uploadFile } = useUpload();
+const uploading = ref(false);
+const uploadedUrl = ref<string | null>(null);
+
+// Demonstrates FileField → useUpload end-to-end: if an avatar file was picked,
+// upload it on submit and surface the stored public URL. Other fields are just
+// validated. (This page is behind the auth middleware, so /files is authorised.)
+const onSubmit = handleSubmit(async (values) => {
+  uploadedUrl.value = null;
+  const avatar = values.avatar;
+  if (avatar instanceof File) {
+    uploading.value = true;
+    try {
+      const { url } = await uploadFile(avatar, 'demo');
+      uploadedUrl.value = url;
+    } catch (err) {
+      toast.error((err as Error)?.message || 'Upload failed');
+      return;
+    } finally {
+      uploading.value = false;
+    }
+  }
   toast.success('Form submitted successfully!');
 });
 
@@ -168,8 +190,33 @@ const statusOptions = [
           </div>
         </div>
 
-        <div class="flex justify-end">
-          <Button type="submit" size="lg">Submit form</Button>
+        <div class="space-y-3">
+          <!-- Proof of FileField → useUpload: the picked avatar, stored via POST /files -->
+          <div
+            v-if="uploadedUrl"
+            class="flex items-center gap-3 rounded-xl border border-border bg-muted/40 p-3"
+          >
+            <img
+              :src="uploadedUrl"
+              alt="Uploaded avatar"
+              class="h-12 w-12 rounded-lg object-cover"
+            />
+            <div class="min-w-0">
+              <p class="text-xs font-medium text-foreground">Uploaded via /files</p>
+              <a
+                :href="uploadedUrl"
+                target="_blank"
+                class="block truncate text-xs text-primary hover:underline"
+              >
+                {{ uploadedUrl }}
+              </a>
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <Button type="submit" size="lg" :disabled="uploading">
+              {{ uploading ? 'Uploading…' : 'Submit form' }}
+            </Button>
+          </div>
         </div>
       </div>
 

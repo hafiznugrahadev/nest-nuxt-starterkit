@@ -57,6 +57,7 @@ const panelClass = computed(() =>
       <!-- Trigger -->
       <button
         type="button"
+        data-testid="user-menu-trigger"
         :class="
           variant === 'full'
             ? 'flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-accent'
@@ -110,14 +111,15 @@ const panelClass = computed(() =>
               @click="go('/profile')"
             >
               <UserIcon class="h-4 w-4" />
-              Profile
+              {{ $t('nav.profile') }}
             </button>
             <button
+              data-testid="logout-button"
               class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
               @click="onLogout"
             >
               <LogOut class="h-4 w-4" />
-              Sign out
+              {{ $t('nav.signOut') }}
             </button>
           </div>
         </div>
@@ -132,7 +134,7 @@ const panelClass = computed(() =>
       :class="variant === 'full' ? 'w-full' : undefined"
       @click="navigateTo('/login')"
     >
-      Login
+      {{ $t('nav.login') }}
     </Button>
 
     <template #fallback>

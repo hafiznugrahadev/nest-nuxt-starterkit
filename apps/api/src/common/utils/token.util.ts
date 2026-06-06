@@ -7,6 +7,9 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
  */
 export const generateRefreshToken = (): string => randomBytes(32).toString('hex');
 
+/** A high-entropy opaque token (256-bit) for one-time flows (e.g. password reset). */
+export const generateOpaqueToken = (): string => randomBytes(32).toString('hex');
+
 export const hashToken = (token: string): string =>
   createHash('sha256').update(token).digest('hex');
 

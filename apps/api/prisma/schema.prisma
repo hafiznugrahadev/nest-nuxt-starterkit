@@ -18,11 +18,13 @@ model User {
   email         String         @unique
   name          String
   password      String
+  avatarUrl     String?        // public URL of the user's avatar (storage module)
   // Many-to-many: a user can hold multiple roles (scalable RBAC).
-  roles         Role[]         @relation("UserRoles")
-  refreshTokens RefreshToken[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  roles               Role[]               @relation("UserRoles")
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@map("users")
 }
@@ -49,4 +51,17 @@ model RefreshToken {
   @@index([userId])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique // SHA-256 of the opaque token (raw value never stored)
+  usedAt    DateTime? // set once the token is consumed; a non-null value means spent
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }

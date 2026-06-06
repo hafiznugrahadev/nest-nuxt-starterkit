@@ -66,9 +66,20 @@ services:
       JWT_REFRESH_EXPIRES_DAYS: 7
       CORS_ORIGIN: http://localhost:${WEB_PORT:-4300}
       LOG_LEVEL: debug
+      # Dev/E2E: skip rate limiting so rapid test runs aren't throttled.
+      THROTTLE_DISABLED: ${THROTTLE_DISABLED:-true}
       SWAGGER_ENABLED: ${SWAGGER_ENABLED:-true}
       SWAGGER_USER: ${SWAGGER_USER:-admin}
       SWAGGER_PASSWORD: ${SWAGGER_PASSWORD:-admin}
+      # Dev email → Mailpit (catch-all SMTP; web UI at http://localhost:8025).
+      MAIL_TRANSPORT: smtp
+      MAIL_FROM: ${MAIL_FROM:-Starter Kit <no-reply@starterkit.test>}
+      MAIL_SMTP_HOST: mailpit
+      MAIL_SMTP_PORT: 1025
+      MAIL_SMTP_SECURE: 'false'
+      PASSWORD_RESET_URL: http://localhost:${WEB_PORT:-4300}/reset-password
+      # Self-service registration (dev: on). Keep the API + web flags in sync.
+      AUTH_REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
     ports:
       - '${API_PORT:-4400}:${API_PORT:-4400}'
     volumes:
@@ -79,6 +90,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     networks: [dokploy-network]
 
   web:
@@ -94,6 +107,7 @@ services:
       HOST: 0.0.0.0
       # Client-side calls hit the host-mapped API port.
       NUXT_PUBLIC_API_BASE: http://localhost:${API_PORT:-4400}/api
+      NUXT_PUBLIC_REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-true}
       # Bind-mount file events don't cross into the container on macOS/Windows,
       # so Vite must poll for HMR to work. See nuxt.config.ts.
       NUXT_DEV_POLLING: 'true'
@@ -104,6 +118,17 @@ services:
       - web_node_modules:/app/node_modules
     depends_on:
       - api
+    networks: [dokploy-network]
+
+  # Dev mail catcher — SMTP sink + web UI. The API (MAIL_TRANSPORT=smtp) sends here;
+  # open the UI to read password-reset and other emails. Not for production.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: starterkit-mailpit
+    restart: unless-stopped
+    ports:
+      - '${MAILPIT_SMTP_PORT:-1025}:1025' # SMTP endpoint (API → mailpit:1025)
+      - '${MAILPIT_UI_PORT:-8025}:8025' # Web UI → http://localhost:8025
     networks: [dokploy-network]
 
 # Shared with Dokploy/Traefik. Create once: `docker network create dokploy-network`.

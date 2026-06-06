@@ -31,6 +31,17 @@ export const appConfig = registerAs('app', () => ({
   throttle: {
     ttl: parseInt(process.env.THROTTLE_TTL_MS ?? '60000', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
+    // Skip ALL rate limiting (incl. per-route @Throttle) — for dev/E2E/load tests.
+    disabled: (process.env.THROTTLE_DISABLED ?? 'false') === 'true',
+  },
+  passwordReset: {
+    ttlMinutes: parseInt(process.env.PASSWORD_RESET_TTL_MIN ?? '30', 10),
+    // Frontend page the emailed reset link points to (token appended as ?token=).
+    url: process.env.PASSWORD_RESET_URL ?? 'http://localhost:4300/reset-password',
+  },
+  registration: {
+    // Off by default (kit is admin-provisioned); opt in for self-service sign-up.
+    enabled: (process.env.AUTH_REGISTRATION_ENABLED ?? 'false') === 'true',
   },
 }));
 

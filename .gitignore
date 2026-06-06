@@ -48,5 +48,13 @@ tmp/
 # Prisma 7 generated client (run `prisma generate`)
 apps/api/src/generated
 
+# Local file uploads (storage driver = local)
+apps/api/storage/
+
 # Playwright MCP artifacts
 .playwright-mcp
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/

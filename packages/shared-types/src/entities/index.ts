@@ -14,6 +14,8 @@ export interface Role {
 export interface User extends BaseModel {
   email: string;
   name: string;
+  /** Public URL of the user's avatar, if set. */
+  avatarUrl?: string | null;
   /** Role names the user holds (e.g. ['ADMIN', 'USER']). */
   roles: string[];
 }

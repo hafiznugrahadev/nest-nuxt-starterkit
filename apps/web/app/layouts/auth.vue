@@ -5,8 +5,9 @@ import { APP_NAME } from '~/lib/constants';
 
 <template>
   <div class="relative grid min-h-screen lg:grid-cols-2">
-    <!-- Theme toggle, top-right -->
-    <div class="absolute right-5 top-5 z-10">
+    <!-- Language + theme, top-right -->
+    <div class="absolute right-5 top-5 z-10 flex items-center gap-2">
+      <LanguageSwitcher />
       <ThemeToggle />
     </div>
 
@@ -35,10 +36,7 @@ import { APP_NAME } from '~/lib/constants';
           <Boxes class="h-8 w-8" />
         </div>
         <h2 class="text-2xl font-semibold tracking-tight">{{ APP_NAME }}</h2>
-        <p class="mt-3 text-sm text-white/70">
-          A NestJS + Nuxt monorepo starter kit — authentication, RBAC, and a typed data layer ready
-          to build on.
-        </p>
+        <p class="mt-3 text-sm text-white/70">{{ $t('appTagline') }}</p>
       </div>
     </div>
   </div>

@@ -6,12 +6,17 @@ import { LoggerModule } from 'nestjs-pino';
 import { validateEnv } from '@config/env.validation';
 import { appConfig } from '@config/app.config';
 import { databaseConfig, redisConfig } from '@config/database.config';
+import { storageConfig } from '@config/storage.config';
+import { mailConfig } from '@config/mail.config';
 import { RequestIdMiddleware } from '@common/middleware/request-id.middleware';
 import { IsUniqueConstraint } from '@common/validators/is-unique.validator';
 import { PrismaModule } from '@infrastructure/database/prisma.module';
 import { RedisModule } from '@infrastructure/redis/redis.module';
+import { StorageModule } from '@infrastructure/storage/storage.module';
+import { MailModule } from '@infrastructure/mail/mail.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
+import { FilesModule } from '@modules/files/files.module';
 import { HealthModule } from '@modules/health/health.module';
 
 @Module({
@@ -23,7 +28,7 @@ import { HealthModule } from '@modules/health/health.module';
       // Real env vars (e.g. from docker-compose) still take precedence.
       envFilePath: ['../../.env'],
       validate: validateEnv,
-      load: [appConfig, databaseConfig, redisConfig],
+      load: [appConfig, databaseConfig, redisConfig, storageConfig, mailConfig],
     }),
     // Logger config flows from ConfigService (.env → app.config → here).
     LoggerModule.forRootAsync({
@@ -42,18 +47,25 @@ import { HealthModule } from '@modules/health/health.module';
     // Global rate limiting (config-driven); per-route overrides via @Throttle.
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => [
-        {
-          name: 'default',
-          ttl: config.get<number>('app.throttle.ttl') ?? 60_000,
-          limit: config.get<number>('app.throttle.limit') ?? 100,
-        },
-      ],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: config.get<number>('app.throttle.ttl') ?? 60_000,
+            limit: config.get<number>('app.throttle.limit') ?? 100,
+          },
+        ],
+        // Config-driven kill switch (THROTTLE_DISABLED=true) for dev/E2E/load tests.
+        skipIf: () => config.get<boolean>('app.throttle.disabled') ?? false,
+      }),
     }),
     PrismaModule,
     RedisModule,
+    StorageModule,
+    MailModule,
     AuthModule,
     UsersModule,
+    FilesModule,
     HealthModule,
   ],
   // Provided here too so class-validator's container can resolve the async validator.

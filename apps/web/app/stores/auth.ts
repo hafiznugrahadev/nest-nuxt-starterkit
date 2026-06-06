@@ -54,6 +54,18 @@ export const useAuthStore = defineStore('auth', {
       this.setSession(res.data);
     },
 
+    /** Self-service registration (when enabled on the API). Logs the user in. */
+    async register(name: string, email: string, password: string) {
+      const res = await $fetch<ApiResponse<SessionPayload>>('/auth/register', {
+        baseURL: this.apiBase(),
+        method: 'POST',
+        body: { name, email, password },
+        credentials: 'include',
+      });
+      if (!res.success) throw new Error('Registration failed');
+      this.setSession(res.data);
+    },
+
     /** Exchange the refresh cookie for a new access token. Returns success. */
     async refresh(): Promise<boolean> {
       try {
@@ -84,6 +96,24 @@ export const useAuthStore = defineStore('auth', {
         // Ignore — clear local state regardless.
       }
       this.clear();
+    },
+
+    /** Request a password-reset email. Resolves regardless of account existence. */
+    async forgotPassword(email: string): Promise<void> {
+      await $fetch<ApiResponse<{ message: string }>>('/auth/forgot-password', {
+        baseURL: this.apiBase(),
+        method: 'POST',
+        body: { email },
+      });
+    },
+
+    /** Complete a password reset with the emailed token. Throws on invalid/expired. */
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+      await $fetch<ApiResponse<{ message: string }>>('/auth/reset-password', {
+        baseURL: this.apiBase(),
+        method: 'POST',
+        body: { token, newPassword },
+      });
     },
   },
 });

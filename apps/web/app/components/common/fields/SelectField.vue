@@ -36,8 +36,11 @@ const selectedLabel = computed(
 const multiValues = computed<string[]>(() =>
   props.multiple ? ((value.value as string[]) ?? []) : [],
 );
-const selectedLabels = computed(() =>
-  multiValues.value.map((v) => props.options.find((o) => o.value === v)?.label ?? v),
+const selectedItems = computed(() =>
+  multiValues.value.map((v) => ({
+    value: v,
+    label: props.options.find((o) => o.value === v)?.label ?? v,
+  })),
 );
 
 const isSelected = (optValue: string) =>
@@ -89,12 +92,12 @@ const isEmpty = computed(() => (props.multiple ? !multiValues.value.length : !si
           <!-- Multi: tags -->
           <template v-if="multiple">
             <span
-              v-for="(lbl, i) in selectedLabels"
-              :key="multiValues[i]"
+              v-for="item in selectedItems"
+              :key="item.value"
               class="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
             >
-              {{ lbl }}
-              <span class="opacity-70 hover:opacity-100" @click.stop="removeTag(multiValues[i])">
+              {{ item.label }}
+              <span class="opacity-70 hover:opacity-100" @click.stop="removeTag(item.value)">
                 <X class="h-3 w-3" />
               </span>
             </span>

@@ -48,7 +48,7 @@ export class UsersRepository extends BaseRepository<UserEntity> {
 
   updateWithRoles(
     id: string,
-    data: { name?: string; password?: string },
+    data: { name?: string; password?: string; avatarUrl?: string | null },
     roleNames?: string[],
   ): Promise<UserWithRoles> {
     return this.prisma.user.update({

@@ -30,8 +30,8 @@ export function useUpdateProfile() {
     successMessage: 'Profile updated',
     onSuccess(user) {
       queryClient.setQueryData<User>(ME_KEY, user);
-      // Keep the header/menu name in sync with the in-memory session.
-      if (auth.user) auth.user = { ...auth.user, name: user.name };
+      // Keep the header/menu name + avatar in sync with the in-memory session.
+      if (auth.user) auth.user = { ...auth.user, name: user.name, avatarUrl: user.avatarUrl };
     },
   });
 }

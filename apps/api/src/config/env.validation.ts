@@ -2,6 +2,7 @@ import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -99,6 +100,58 @@ export class EnvironmentVariables {
   @IsInt()
   @IsOptional()
   THROTTLE_LIMIT = 100;
+
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  THROTTLE_DISABLED = false;
+
+  // ── Mail (transport: log = dev/log-only, smtp = real delivery) ─────────────
+  @IsIn(['log', 'smtp'])
+  @IsOptional()
+  MAIL_TRANSPORT: 'log' | 'smtp' = 'log';
+
+  @IsString()
+  @IsOptional()
+  MAIL_FROM = 'Starter Kit <no-reply@starterkit.test>';
+
+  @IsString()
+  @IsOptional()
+  MAIL_SMTP_HOST = 'localhost';
+
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  MAIL_SMTP_PORT = 1025;
+
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  MAIL_SMTP_SECURE = false;
+
+  @IsString()
+  @IsOptional()
+  MAIL_SMTP_USER?: string;
+
+  @IsString()
+  @IsOptional()
+  MAIL_SMTP_PASSWORD?: string;
+
+  // ── Password reset ─────────────────────────────────────────────────────────
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  PASSWORD_RESET_TTL_MIN = 30;
+
+  @IsString()
+  @IsOptional()
+  PASSWORD_RESET_URL = 'http://localhost:4300/reset-password';
+
+  // ── Self-service registration (off by default; kit is admin-provisioned) ────
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  AUTH_REGISTRATION_ENABLED = false;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

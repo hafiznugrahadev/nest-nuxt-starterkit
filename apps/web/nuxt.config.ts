@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   },
 
   // Nuxt 4: srcDir defaults to app/ (alias ~ → app/), matching the spec structure.
-  modules: ['@pinia/nuxt', '@nuxt/eslint'],
+  modules: ['@pinia/nuxt', '@nuxt/eslint', '@nuxtjs/i18n'],
 
   // vue-sonner's Nuxt module doesn't yet declare Nuxt 4 compat, so we register
   // <Toaster> manually in app.vue and just transpile the package for SSR.
@@ -83,6 +83,25 @@ export default defineNuxtConfig({
     // server-only secrets go here
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:4400/api',
+      // Mirror the API's AUTH_REGISTRATION_ENABLED so the UI can show/hide sign-up.
+      registrationEnabled: process.env.NUXT_PUBLIC_REGISTRATION_ENABLED === 'true',
+    },
+  },
+
+  // ── i18n (English default + Indonesian) ─────────────────────────────────────
+  // `no_prefix`: locale is kept in a cookie, URLs are unchanged (routes/middleware
+  // /E2E stay intact). Locale files lazy-load from i18n/locales/.
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', name: 'English', language: 'en-US', file: 'en.json' },
+      { code: 'id', name: 'Bahasa Indonesia', language: 'id-ID', file: 'id.json' },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale',
+      redirectOn: 'root',
     },
   },
 

@@ -48,6 +48,7 @@ const { toggleMobile, toggleExpanded } = useSidebar();
 
       <!-- Right: actions -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <LanguageSwitcher />
         <ThemeToggle />
 
         <button

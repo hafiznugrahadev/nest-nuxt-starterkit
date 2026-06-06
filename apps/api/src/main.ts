@@ -2,9 +2,12 @@ import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import basicAuth from 'express-basic-auth';
+import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -12,7 +15,7 @@ import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
 import { AllExceptionsFilter } from '@common/filters/all-exceptions.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
 
   const logger = app.get(Logger);
   app.useLogger(logger);
@@ -31,6 +34,15 @@ async function bootstrap() {
 
   // Parse cookies so the auth controller can read the httpOnly refresh token.
   app.use(cookieParser());
+
+  // Serve locally-stored uploads as static assets (local storage driver only).
+  // Mounted at /uploads — outside the API prefix and the response interceptor, so
+  // binary content streams untouched. The S3 driver serves via its own bucket URL.
+  if ((config.get<string>('storage.driver') ?? 'local') === 'local') {
+    const uploadsDir = resolve(config.get<string>('storage.local.dir') ?? './storage/uploads');
+    mkdirSync(uploadsDir, { recursive: true });
+    app.useStaticAssets(uploadsDir, { prefix: '/uploads' });
+  }
 
   // Credentialed CORS (cookies) cannot use a literal "*" origin — browsers reject
   // it. With "*" we reflect the request origin (dev convenience) and warn loudly;

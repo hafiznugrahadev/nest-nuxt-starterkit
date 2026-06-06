@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -8,10 +8,13 @@ import { useAuthStore } from '~/stores/auth';
 import { APP_NAME } from '~/lib/constants';
 
 definePageMeta({ layout: 'auth' });
+const { t } = useI18n();
 useHead({ title: `Sign In — ${APP_NAME}` });
 
 const auth = useAuthStore();
 const route = useRoute();
+const config = useRuntimeConfig();
+const registrationEnabled = computed(() => config.public.registrationEnabled as boolean);
 const submitting = ref(false);
 const keepLoggedIn = ref(false);
 
@@ -29,11 +32,11 @@ const onSubmit = handleSubmit(async (values) => {
   submitting.value = true;
   try {
     await auth.login(values.email, values.password);
-    toast.success('Welcome back!');
+    toast.success(t('auth.welcomeBack'));
     const redirect = (route.query.redirect as string) || '/dashboard';
     await navigateTo(redirect);
   } catch {
-    toast.error('Invalid email or password');
+    toast.error(t('auth.invalidCredentials'));
   } finally {
     submitting.value = false;
   }
@@ -47,8 +50,10 @@ const notImplemented = (provider: string) =>
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Sign In</h1>
-      <p class="mt-2 text-sm text-muted-foreground">Enter your email and password to sign in!</p>
+      <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+        {{ $t('auth.signIn') }}
+      </h1>
+      <p class="mt-2 text-sm text-muted-foreground">{{ $t('auth.signInSubtitle') }}</p>
     </div>
 
     <!-- Social sign-in -->
@@ -76,7 +81,7 @@ const notImplemented = (provider: string) =>
             fill="#EB4335"
           />
         </svg>
-        Sign in with Google
+        {{ $t('auth.googleSignIn') }}
       </button>
       <button
         type="button"
@@ -88,7 +93,7 @@ const notImplemented = (provider: string) =>
             d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
           />
         </svg>
-        Sign in with X
+        {{ $t('auth.xSignIn') }}
       </button>
     </div>
 
@@ -98,14 +103,25 @@ const notImplemented = (provider: string) =>
         <span class="w-full border-t border-border" />
       </div>
       <div class="relative flex justify-center text-xs uppercase">
-        <span class="bg-background px-3 text-muted-foreground">Or</span>
+        <span class="bg-background px-3 text-muted-foreground">{{ $t('auth.or') }}</span>
       </div>
     </div>
 
     <form class="space-y-5" @submit="onSubmit">
-      <TextField name="email" label="Email" type="email" placeholder="info@gmail.com" required />
+      <TextField
+        name="email"
+        :label="$t('auth.email')"
+        type="email"
+        placeholder="info@gmail.com"
+        required
+      />
 
-      <PasswordField name="password" label="Password" placeholder="Enter your password" required />
+      <PasswordField
+        name="password"
+        :label="$t('auth.password')"
+        placeholder="Enter your password"
+        required
+      />
 
       <!-- Keep me logged in + forgot password -->
       <div class="flex items-center justify-between">
@@ -115,17 +131,24 @@ const notImplemented = (provider: string) =>
             type="checkbox"
             class="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
           />
-          Keep me logged in
+          {{ $t('auth.keepLoggedIn') }}
         </label>
         <NuxtLink to="/forgot-password" class="text-sm font-medium text-primary hover:underline">
-          Forgot password?
+          {{ $t('auth.forgotPassword') }}
         </NuxtLink>
       </div>
 
       <Button type="submit" size="lg" class="h-11 w-full" :disabled="submitting">
-        {{ submitting ? 'Signing in…' : 'Sign In' }}
+        {{ submitting ? $t('auth.signingIn') : $t('auth.signIn') }}
       </Button>
     </form>
+
+    <p v-if="registrationEnabled" class="mt-6 text-center text-sm text-muted-foreground">
+      {{ $t('auth.noAccount') }}
+      <NuxtLink to="/register" class="font-medium text-primary hover:underline">
+        {{ $t('auth.signUp') }}
+      </NuxtLink>
+    </p>
 
     <div class="mt-6 rounded-xl border border-border bg-muted/50 px-4 py-3 text-center">
       <p class="text-xs text-muted-foreground">

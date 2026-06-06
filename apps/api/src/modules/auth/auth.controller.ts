@@ -7,6 +7,9 @@ import { Public } from '@common/decorators/public.decorator';
 import { CurrentUser, type AuthUser } from '@common/decorators/current-user.decorator';
 import { AuthService, type AuthTokens } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 /** httpOnly cookie holding the opaque refresh token — never readable from JS. */
 const REFRESH_COOKIE = 'refresh_token';
@@ -35,6 +38,16 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Self-service registration (when enabled); returns a session' })
+  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.authService.register(dto);
+    return this.respondWithTokens(tokens, res);
+  }
+
+  @Public()
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
@@ -54,6 +67,27 @@ export class AuthController {
     await this.authService.logout(raw);
     res.clearCookie(REFRESH_COOKIE, { path: this.cookiePath });
     return { success: true };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request a password-reset email' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(dto.email);
+    // Uniform response whether or not the email exists (no account enumeration).
+    return { message: 'If an account exists for that email, a reset link has been sent.' };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset the password using a reset token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto.token, dto.newPassword);
+    return { message: 'Password has been reset. You can now sign in.' };
   }
 
   @Get('me')

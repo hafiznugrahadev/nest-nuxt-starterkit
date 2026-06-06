@@ -43,7 +43,7 @@ export class UsersService extends BaseCrudService<
     if (cached) return cached;
 
     const where: Record<string, unknown> = {};
-    if (query.role) where.roles = { some: { name: query.role } };
+    if (query.roles?.length) where.roles = { some: { name: { in: query.roles } } };
     const page = await this.usersRepository.paginate(query, {
       where,
       include: { roles: true },
@@ -97,7 +97,11 @@ export class UsersService extends BaseCrudService<
    */
   async updateProfile(id: string, dto: UpdateProfileDto): Promise<UserEntity> {
     await this.findOne(id); // 404 if missing
-    const updated = await this.usersRepository.updateWithRoles(id, { name: dto.name });
+    // Prisma ignores `undefined`, so only the provided fields are written.
+    const updated = await this.usersRepository.updateWithRoles(id, {
+      name: dto.name,
+      avatarUrl: dto.avatarUrl,
+    });
     await this.invalidateList();
     return this.toEntity(updated);
   }
@@ -129,7 +133,9 @@ export class UsersService extends BaseCrudService<
     return `users:list:${gen}:${JSON.stringify(query)}`;
   }
 
-  private async invalidateList(): Promise<void> {
+  /** Bump the cache generation so the next list read misses the stale cache.
+   *  Public so other modules (e.g. auth registration) can keep the list fresh. */
+  async invalidateList(): Promise<void> {
     await this.safe(() => this.redis.raw.incr(this.genKey));
   }
 
