@@ -17,6 +17,8 @@ const open = defineModel<boolean>('open', { default: false });
 const props = defineProps<{ user?: User | null }>();
 const emit = defineEmits<{ saved: [] }>();
 
+const { t } = useI18n();
+
 const isEdit = computed(() => !!props.user);
 const ALL_ROLES = [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.USER];
 
@@ -76,15 +78,13 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <Modal
     v-model:open="open"
-    :title="isEdit ? 'Edit user' : 'New user'"
-    :description="
-      isEdit ? 'Update account details and roles.' : 'Create an account and assign roles.'
-    "
+    :title="isEdit ? $t('users.form.editTitle') : $t('users.form.newTitle')"
+    :description="isEdit ? $t('users.form.editDesc') : $t('users.form.newDesc')"
   >
     <form class="space-y-5" @submit="onSubmit">
       <!-- Email -->
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-foreground">Email</label>
+        <label class="text-sm font-medium text-foreground">{{ $t('users.form.email') }}</label>
         <input
           v-if="!isEdit"
           v-model="email"
@@ -98,7 +98,7 @@ const onSubmit = handleSubmit(async (values) => {
 
       <!-- Name -->
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-foreground">Name</label>
+        <label class="text-sm font-medium text-foreground">{{ $t('users.form.name') }}</label>
         <input v-model="name" type="text" placeholder="Jane Doe" :class="inputClass" />
         <p v-if="errors.name" class="text-xs text-error-500">{{ errors.name }}</p>
       </div>
@@ -106,8 +106,10 @@ const onSubmit = handleSubmit(async (values) => {
       <!-- Password -->
       <div class="space-y-1.5">
         <label class="text-sm font-medium text-foreground">
-          Password
-          <span v-if="isEdit" class="font-normal text-muted-foreground">(leave blank to keep)</span>
+          {{ $t('users.form.password') }}
+          <span v-if="isEdit" class="font-normal text-muted-foreground">{{
+            $t('users.form.passwordHint')
+          }}</span>
         </label>
         <input v-model="password" type="password" placeholder="••••••••" :class="inputClass" />
         <p v-if="errors.password" class="text-xs text-error-500">{{ errors.password }}</p>
@@ -115,7 +117,7 @@ const onSubmit = handleSubmit(async (values) => {
 
       <!-- Roles -->
       <div class="space-y-1.5">
-        <label class="text-sm font-medium text-foreground">Roles</label>
+        <label class="text-sm font-medium text-foreground">{{ $t('users.form.roles') }}</label>
         <div class="flex flex-wrap gap-4 pt-1">
           <label
             v-for="role in ALL_ROLES"
@@ -135,9 +137,17 @@ const onSubmit = handleSubmit(async (values) => {
       </div>
 
       <div class="flex justify-end gap-3 pt-2">
-        <Button type="button" variant="outline" @click="open = false">Cancel</Button>
+        <Button type="button" variant="outline" @click="open = false">{{
+          $t('users.form.cancel')
+        }}</Button>
         <Button type="submit" :disabled="pending">
-          {{ pending ? 'Saving…' : isEdit ? 'Save changes' : 'Create user' }}
+          {{
+            pending
+              ? $t('users.form.saving')
+              : isEdit
+                ? $t('users.form.saveChanges')
+                : $t('users.form.createUser')
+          }}
         </Button>
       </div>
     </form>

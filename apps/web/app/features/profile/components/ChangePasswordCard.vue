@@ -33,24 +33,40 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
     <div class="mb-1">
-      <h3 class="text-base font-semibold text-foreground">Change Password</h3>
-      <p class="mt-1 text-sm text-muted-foreground">
-        Use a strong password you don’t use anywhere else.
-      </p>
+      <h3 class="text-base font-semibold text-foreground">
+        {{ $t('profile.changePassword.title') }}
+      </h3>
+      <p class="mt-1 text-sm text-muted-foreground">{{ $t('profile.changePassword.subtitle') }}</p>
     </div>
 
     <form class="mt-5 space-y-5" @submit="onSubmit">
       <div class="max-w-md">
-        <PasswordField name="currentPassword" label="Current password" placeholder="••••••••" />
+        <PasswordField
+          name="currentPassword"
+          :label="$t('profile.changePassword.currentPassword')"
+          placeholder="••••••••"
+        />
       </div>
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <PasswordField name="newPassword" label="New password" placeholder="••••••••" />
-        <PasswordField name="confirmPassword" label="Confirm new password" placeholder="••••••••" />
+        <PasswordField
+          name="newPassword"
+          :label="$t('profile.changePassword.newPassword')"
+          placeholder="••••••••"
+        />
+        <PasswordField
+          name="confirmPassword"
+          :label="$t('profile.changePassword.confirmPassword')"
+          placeholder="••••••••"
+        />
       </div>
 
       <div class="flex justify-end">
         <Button type="submit" :disabled="change.isPending.value">
-          {{ change.isPending.value ? 'Updating…' : 'Update password' }}
+          {{
+            change.isPending.value
+              ? $t('profile.changePassword.updating')
+              : $t('profile.changePassword.update')
+          }}
         </Button>
       </div>
     </form>

@@ -9,6 +9,8 @@ import { useUpdateProfile } from '../composables/useProfile';
 
 const props = defineProps<{ user: User }>();
 
+const { t } = useI18n();
+
 const editing = ref(false);
 const update = useUpdateProfile();
 
@@ -37,27 +39,33 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
     <div class="mb-5 flex items-center justify-between gap-3">
-      <h3 class="text-base font-semibold text-foreground">Personal Information</h3>
+      <h3 class="text-base font-semibold text-foreground">
+        {{ $t('profile.personalInfo.title') }}
+      </h3>
       <Button v-if="!editing" variant="outline" size="sm" @click="startEdit">
         <Pencil class="h-4 w-4" />
-        Edit
+        {{ $t('profile.personalInfo.edit') }}
       </Button>
     </div>
 
     <!-- Read-only view -->
     <dl v-if="!editing" class="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
       <div>
-        <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Full name</dt>
+        <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {{ $t('profile.personalInfo.fullName') }}
+        </dt>
         <dd class="mt-1 text-sm font-medium text-foreground">{{ user.name }}</dd>
       </div>
       <div>
         <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Email address
+          {{ $t('profile.personalInfo.emailAddress') }}
         </dt>
         <dd class="mt-1 text-sm font-medium text-foreground">{{ user.email }}</dd>
       </div>
       <div>
-        <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Roles</dt>
+        <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {{ $t('profile.personalInfo.roles') }}
+        </dt>
         <dd class="mt-1 flex flex-wrap gap-1.5">
           <Badge v-for="role in user.roles" :key="role" variant="muted">{{ role }}</Badge>
         </dd>
@@ -67,11 +75,17 @@ const onSubmit = handleSubmit(async (values) => {
     <!-- Edit form -->
     <form v-else class="space-y-5" @submit="onSubmit">
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <TextField name="name" label="Full name" placeholder="Your name" />
+        <TextField
+          name="name"
+          :label="$t('profile.personalInfo.fullName')"
+          placeholder="Your name"
+        />
         <div class="space-y-1.5">
-          <label class="text-sm font-medium leading-none text-foreground">Email address</label>
+          <label class="text-sm font-medium leading-none text-foreground">{{
+            $t('profile.personalInfo.emailAddress')
+          }}</label>
           <Input :model-value="user.email" disabled class="cursor-not-allowed opacity-70" />
-          <p class="text-xs text-muted-foreground">Email can’t be changed.</p>
+          <p class="text-xs text-muted-foreground">{{ $t('profile.personalInfo.emailHint') }}</p>
         </div>
       </div>
 
@@ -82,10 +96,14 @@ const onSubmit = handleSubmit(async (values) => {
           :disabled="update.isPending.value"
           @click="editing = false"
         >
-          Cancel
+          {{ $t('profile.personalInfo.cancel') }}
         </Button>
         <Button type="submit" :disabled="update.isPending.value">
-          {{ update.isPending.value ? 'Saving…' : 'Save changes' }}
+          {{
+            update.isPending.value
+              ? $t('profile.personalInfo.saving')
+              : $t('profile.personalInfo.saveChanges')
+          }}
         </Button>
       </div>
     </form>

@@ -8,42 +8,40 @@ definePageMeta({ layout: 'public' });
 useHead({ title: `${APP_NAME} — NestJS + Nuxt starter kit` });
 
 const auth = useAuthStore();
+const { t } = useI18n();
 
-const features = [
+const features = computed(() => [
   {
     icon: ShieldCheck,
-    title: 'Auth & RBAC',
-    text: 'JWT access + rotating refresh cookie, roles & guards.',
+    title: t('home.features.auth.title'),
+    text: t('home.features.auth.text'),
   },
   {
     icon: Table2,
-    title: 'Datatable',
-    text: 'Paginated, searchable tables over a typed API client.',
+    title: t('home.features.datatable.title'),
+    text: t('home.features.datatable.text'),
   },
   {
     icon: Component,
-    title: 'Reusable UI',
-    text: 'shadcn-vue primitives, form fields & state blocks.',
+    title: t('home.features.ui.title'),
+    text: t('home.features.ui.text'),
   },
-];
+]);
 </script>
 
 <template>
   <section class="mx-auto max-w-3xl space-y-10 px-4 py-16 sm:py-24">
     <div class="space-y-5 text-center">
       <h1 class="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">{{ APP_NAME }}</h1>
-      <p class="mx-auto max-w-xl text-muted-foreground">
-        A NestJS + Nuxt monorepo starter kit — authentication, role-based access, a users datatable,
-        and reusable components to build on.
-      </p>
+      <p class="mx-auto max-w-xl text-muted-foreground">{{ $t('home.description') }}</p>
       <div class="flex justify-center gap-3">
         <ClientOnly>
           <Button v-if="auth.isAuthenticated" @click="navigateTo('/dashboard')">
-            Go to dashboard
+            {{ $t('home.goToDashboard') }}
           </Button>
-          <Button v-else @click="navigateTo('/login')">Sign in</Button>
+          <Button v-else @click="navigateTo('/login')">{{ $t('home.signIn') }}</Button>
           <template #fallback>
-            <Button @click="navigateTo('/login')">Sign in</Button>
+            <Button @click="navigateTo('/login')">{{ $t('home.signIn') }}</Button>
           </template>
         </ClientOnly>
       </div>

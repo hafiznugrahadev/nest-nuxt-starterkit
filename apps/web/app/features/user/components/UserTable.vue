@@ -7,6 +7,8 @@ import { useUsers, useDeleteUser } from '../composables/useUsers';
 import UserFormModal from './UserFormModal.vue';
 import type { UserListParams } from '../types';
 
+const { t } = useI18n();
+
 const auth = useAuthStore();
 const canManage = computed(() => auth.isSuperAdmin);
 
@@ -22,11 +24,11 @@ const params = computed<UserListParams>(() => ({
 }));
 
 // Role filter as multi-select tags — the API returns users holding ANY selected role.
-const roleOptions = [
-  { label: 'Super Admin', value: UserRole.SUPER_ADMIN },
-  { label: 'Admin', value: UserRole.ADMIN },
-  { label: 'User', value: UserRole.USER },
-] as const;
+const roleOptions = computed(() => [
+  { label: t('users.roles.superAdmin'), value: UserRole.SUPER_ADMIN },
+  { label: t('users.roles.admin'), value: UserRole.ADMIN },
+  { label: t('users.roles.user'), value: UserRole.USER },
+]);
 function toggleRole(value: string) {
   const next = new Set(selectedRoles.value);
   next.has(value) ? next.delete(value) : next.add(value);
@@ -96,7 +98,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
           <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="search"
-            placeholder="Search users…"
+            :placeholder="$t('users.search')"
             class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10"
           />
         </div>
@@ -112,7 +114,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
             ]"
             @click="clearRoles"
           >
-            All
+            {{ $t('users.roles.all') }}
           </button>
           <button
             v-for="opt in roleOptions"
@@ -132,7 +134,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
       </div>
       <Button v-if="canManage" size="sm" @click="openCreate">
         <Plus class="h-4 w-4" />
-        Add user
+        {{ $t('users.addUser') }}
       </Button>
     </div>
 
@@ -140,8 +142,8 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
     <LoadingState v-else-if="isLoading" />
     <EmptyState
       v-else-if="rows.length === 0"
-      title="No users found"
-      description="Try a different search, or add a new user."
+      :title="$t('users.noResults')"
+      :description="$t('users.noResultsHint')"
     />
 
     <!-- TailAdmin-style table -->
@@ -152,23 +154,23 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
             <th
               class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
-              User
+              {{ $t('users.columns.user') }}
             </th>
             <th
               class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
-              Roles
+              {{ $t('users.columns.roles') }}
             </th>
             <th
               class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
-              Joined
+              {{ $t('users.columns.joined') }}
             </th>
             <th
               v-if="canManage"
               class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
-              Action
+              {{ $t('users.columns.action') }}
             </th>
           </tr>
         </thead>
@@ -205,14 +207,14 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
               <div class="flex items-center justify-end gap-1">
                 <button
                   class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  title="Edit"
+                  :title="$t('profile.personalInfo.edit')"
                   @click="openEdit(u)"
                 >
                   <Pencil class="h-4 w-4" />
                 </button>
                 <button
                   class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-error-50 hover:text-error-500"
-                  title="Delete"
+                  :title="$t('users.deleteModal.title')"
                   @click="askDelete(u)"
                 >
                   <Trash2 class="h-4 w-4" />
@@ -226,12 +228,19 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
 
     <!-- Pagination -->
     <div v-if="meta && meta.totalPages > 1" class="flex items-center justify-between">
-      <span class="text-sm text-muted-foreground">{{ meta.total }} users</span>
+      <span class="text-sm text-muted-foreground">{{
+        $t('users.pagination.total', { n: meta.total })
+      }}</span>
       <div class="flex items-center gap-2">
-        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">Prev</Button>
-        <span class="text-sm">Page {{ meta.page }} / {{ meta.totalPages }}</span>
+        <Button variant="outline" size="sm" :disabled="page <= 1" @click="page--">{{
+          $t('users.pagination.prev')
+        }}</Button>
+        <span class="text-sm"
+          >{{ $t('users.pagination.page') }} {{ meta.page }} {{ $t('users.pagination.of') }}
+          {{ meta.totalPages }}</span
+        >
         <Button variant="outline" size="sm" :disabled="page >= meta.totalPages" @click="page++">
-          Next
+          {{ $t('users.pagination.next') }}
         </Button>
       </div>
     </div>
@@ -240,15 +249,20 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
     <UserFormModal v-model:open="formOpen" :user="editing" @saved="refetch()" />
 
     <!-- Delete confirm -->
-    <Modal v-model:open="confirmOpen" title="Delete user">
+    <Modal v-model:open="confirmOpen" :title="$t('users.deleteModal.title')">
       <p class="text-sm text-muted-foreground">
-        Delete <span class="font-medium text-foreground">{{ deleteTarget?.name }}</span
-        >? This cannot be undone.
+        {{ $t('users.deleteModal.body', { name: deleteTarget?.name }) }}
       </p>
       <div class="mt-6 flex justify-end gap-3">
-        <Button variant="outline" @click="confirmOpen = false">Cancel</Button>
+        <Button variant="outline" @click="confirmOpen = false">{{
+          $t('users.deleteModal.cancel')
+        }}</Button>
         <Button variant="destructive" :disabled="remove.isPending.value" @click="confirmDelete">
-          {{ remove.isPending.value ? 'Deleting…' : 'Delete' }}
+          {{
+            remove.isPending.value
+              ? $t('users.deleteModal.deleting')
+              : $t('users.deleteModal.confirm')
+          }}
         </Button>
       </div>
     </Modal>

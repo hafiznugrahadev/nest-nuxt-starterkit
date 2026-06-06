@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { Bell, Menu, Search } from 'lucide-vue-next';
+import { Menu, Search } from 'lucide-vue-next';
+import { useCommandPalette } from '~/composables/useCommandPalette';
 
 const { toggleMobile, toggleExpanded } = useSidebar();
+const { openPalette } = useCommandPalette();
 </script>
 
 <template>
@@ -29,39 +31,32 @@ const { toggleMobile, toggleExpanded } = useSidebar();
           <Menu class="h-5 w-5" />
         </button>
 
-        <div class="relative hidden max-w-md flex-1 sm:block">
+        <button
+          type="button"
+          class="relative hidden max-w-md flex-1 cursor-text items-center sm:flex"
+          @click="openPalette"
+        >
           <Search
             class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
-          <input
-            type="search"
-            placeholder="Search or type command…"
-            class="h-11 w-full rounded-lg border border-border bg-background pl-10 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-          />
+          <span
+            class="flex items-center h-11 w-full rounded-lg border border-border bg-background pl-10 pr-16 text-sm text-muted-foreground"
+          >
+            {{ $t('commandPalette.placeholder') }}
+          </span>
           <span
             class="absolute right-2.5 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground md:inline-flex"
           >
             ⌘ K
           </span>
-        </div>
+        </button>
       </div>
 
       <!-- Right: actions -->
       <div class="flex items-center gap-2 sm:gap-3">
         <LanguageSwitcher />
         <ThemeToggle />
-
-        <button
-          type="button"
-          class="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          aria-label="Notifications"
-        >
-          <Bell class="h-5 w-5" />
-          <span
-            class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-brand-500 ring-2 ring-card"
-          />
-        </button>
-
+        <NotificationPanel />
         <UserMenu />
       </div>
     </div>

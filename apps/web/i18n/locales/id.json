@@ -60,5 +60,124 @@
     "notFoundDesc": "Halaman yang Anda cari tidak ada atau mungkin telah dipindahkan.",
     "genericDesc": "Terjadi kesalahan tak terduga. Silakan coba lagi.",
     "backHome": "Kembali ke beranda"
+  },
+  "state": {
+    "loading": "Memuat…",
+    "empty": "Belum ada data",
+    "error": "Terjadi kesalahan",
+    "retry": "Coba lagi"
+  },
+  "home": {
+    "description": "Starter kit monorepo NestJS + Nuxt — autentikasi, akses berbasis peran, tabel data pengguna, dan komponen yang siap dikembangkan.",
+    "goToDashboard": "Ke dasbor",
+    "signIn": "Masuk",
+    "features": {
+      "auth": {
+        "title": "Auth & RBAC",
+        "text": "Akses JWT + cookie refresh berputar, peran & penjaga."
+      },
+      "datatable": {
+        "title": "Tabel Data",
+        "text": "Tabel paginasi dan pencarian melalui klien API bertipe."
+      },
+      "ui": {
+        "title": "UI Reusable",
+        "text": "Primitif shadcn-vue, field formulir & blok status."
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "subtitle": "Selamat datang kembali — ini yang terjadi hari ini.",
+    "metrics": {
+      "customers": "Pelanggan",
+      "orders": "Pesanan",
+      "revenue": "Pendapatan",
+      "growth": "Pertumbuhan"
+    }
+  },
+  "users": {
+    "title": "Pengguna",
+    "allAccounts": "Semua akun",
+    "subtitle": "Pengguna terdaftar di seluruh ruang kerja (khusus admin).",
+    "search": "Cari pengguna…",
+    "addUser": "Tambah pengguna",
+    "noResults": "Tidak ada pengguna ditemukan",
+    "noResultsHint": "Coba pencarian lain, atau tambah pengguna baru.",
+    "columns": {
+      "user": "Pengguna",
+      "roles": "Peran",
+      "joined": "Bergabung",
+      "action": "Aksi"
+    },
+    "roles": {
+      "all": "Semua",
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "user": "Pengguna"
+    },
+    "pagination": {
+      "prev": "Sebelumnya",
+      "next": "Berikutnya",
+      "page": "Halaman",
+      "of": "/",
+      "total": "{n} pengguna"
+    },
+    "deleteModal": {
+      "title": "Hapus pengguna",
+      "body": "Hapus {name}? Ini tidak dapat dibatalkan.",
+      "confirm": "Hapus",
+      "deleting": "Menghapus…",
+      "cancel": "Batal"
+    },
+    "form": {
+      "newTitle": "Pengguna baru",
+      "editTitle": "Edit pengguna",
+      "newDesc": "Buat akun dan tetapkan peran.",
+      "editDesc": "Perbarui detail akun dan peran.",
+      "email": "Email",
+      "name": "Nama",
+      "password": "Kata sandi",
+      "passwordHint": "(kosongkan untuk tetap sama)",
+      "roles": "Peran",
+      "cancel": "Batal",
+      "saving": "Menyimpan…",
+      "saveChanges": "Simpan perubahan",
+      "createUser": "Buat pengguna"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "personalInfo": {
+      "title": "Informasi Pribadi",
+      "edit": "Edit",
+      "fullName": "Nama lengkap",
+      "emailAddress": "Alamat email",
+      "roles": "Peran",
+      "emailHint": "Email tidak dapat diubah.",
+      "cancel": "Batal",
+      "saving": "Menyimpan…",
+      "saveChanges": "Simpan perubahan"
+    },
+    "changePassword": {
+      "title": "Ubah Kata Sandi",
+      "subtitle": "Gunakan kata sandi kuat yang tidak digunakan di tempat lain.",
+      "currentPassword": "Kata sandi saat ini",
+      "newPassword": "Kata sandi baru",
+      "confirmPassword": "Konfirmasi kata sandi baru",
+      "update": "Perbarui kata sandi",
+      "updating": "Memperbarui…"
+    }
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "markAllRead": "Tandai semua telah dibaca",
+    "empty": "Belum ada notifikasi",
+    "emptyHint": "Anda sudah membaca semua!"
+  },
+  "commandPalette": {
+    "placeholder": "Cari atau ketik perintah…",
+    "noResults": "Tidak ada hasil ditemukan.",
+    "navigation": "Navigasi"
   }
 }

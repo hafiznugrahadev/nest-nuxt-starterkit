@@ -12,6 +12,7 @@ import { UserRole } from '@starterkit/shared-types';
 import { PrismaService } from '@infrastructure/database/prisma.service';
 import { MailService } from '@infrastructure/mail/mail.service';
 import { UsersService } from '@modules/users/users.service';
+import { NotificationsService } from '@modules/notifications/notifications.service';
 import { hashPassword, verifyPassword } from '@common/utils/password';
 import {
   generateOpaqueToken,
@@ -46,6 +47,7 @@ export class AuthService {
     private readonly config: ConfigService,
     private readonly mail: MailService,
     private readonly users: UsersService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async login(dto: LoginDto): Promise<AuthTokens> {
@@ -82,6 +84,14 @@ export class AuthService {
     });
     // Keep the admin users list cache fresh (registration bypasses UsersService).
     await this.users.invalidateList();
+    // Welcome notification (fire-and-forget — never block registration on it).
+    this.notifications
+      .create(user.id, {
+        title: 'Welcome aboard!',
+        body: `Hi ${user.name}, your account is ready.`,
+        type: 'success',
+      })
+      .catch(() => {});
     this.logger.log(`New user registered: ${user.email}`);
     return this.issueTokens(user, generateTokenFamily());
   }

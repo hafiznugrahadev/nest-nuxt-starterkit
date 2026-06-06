@@ -60,5 +60,124 @@
     "notFoundDesc": "The page you're looking for doesn't exist or may have moved.",
     "genericDesc": "An unexpected error occurred. Please try again.",
     "backHome": "Back to home"
+  },
+  "state": {
+    "loading": "Loading…",
+    "empty": "No data yet",
+    "error": "Something went wrong",
+    "retry": "Retry"
+  },
+  "home": {
+    "description": "A NestJS + Nuxt monorepo starter kit — authentication, role-based access, a users datatable, and reusable components to build on.",
+    "goToDashboard": "Go to dashboard",
+    "signIn": "Sign in",
+    "features": {
+      "auth": {
+        "title": "Auth & RBAC",
+        "text": "JWT access + rotating refresh cookie, roles & guards."
+      },
+      "datatable": {
+        "title": "Datatable",
+        "text": "Paginated, searchable tables over a typed API client."
+      },
+      "ui": {
+        "title": "Reusable UI",
+        "text": "shadcn-vue primitives, form fields & state blocks."
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Welcome back — here's what's happening today.",
+    "metrics": {
+      "customers": "Customers",
+      "orders": "Orders",
+      "revenue": "Revenue",
+      "growth": "Growth"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "allAccounts": "All accounts",
+    "subtitle": "Registered users across the workspace (admin only).",
+    "search": "Search users…",
+    "addUser": "Add user",
+    "noResults": "No users found",
+    "noResultsHint": "Try a different search, or add a new user.",
+    "columns": {
+      "user": "User",
+      "roles": "Roles",
+      "joined": "Joined",
+      "action": "Action"
+    },
+    "roles": {
+      "all": "All",
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "user": "User"
+    },
+    "pagination": {
+      "prev": "Prev",
+      "next": "Next",
+      "page": "Page",
+      "of": "/",
+      "total": "{n} users"
+    },
+    "deleteModal": {
+      "title": "Delete user",
+      "body": "Delete {name}? This cannot be undone.",
+      "confirm": "Delete",
+      "deleting": "Deleting…",
+      "cancel": "Cancel"
+    },
+    "form": {
+      "newTitle": "New user",
+      "editTitle": "Edit user",
+      "newDesc": "Create an account and assign roles.",
+      "editDesc": "Update account details and roles.",
+      "email": "Email",
+      "name": "Name",
+      "password": "Password",
+      "passwordHint": "(leave blank to keep)",
+      "roles": "Roles",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveChanges": "Save changes",
+      "createUser": "Create user"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": {
+      "title": "Personal Information",
+      "edit": "Edit",
+      "fullName": "Full name",
+      "emailAddress": "Email address",
+      "roles": "Roles",
+      "emailHint": "Email can't be changed.",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveChanges": "Save changes"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "subtitle": "Use a strong password you don't use anywhere else.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "update": "Update password",
+      "updating": "Updating…"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "emptyHint": "You're all caught up!"
+  },
+  "commandPalette": {
+    "placeholder": "Search or type command…",
+    "noResults": "No results found.",
+    "navigation": "Navigation"
   }
 }

@@ -18,6 +18,7 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { UsersModule } from '@modules/users/users.module';
 import { FilesModule } from '@modules/files/files.module';
 import { HealthModule } from '@modules/health/health.module';
+import { NotificationsModule } from '@modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { HealthModule } from '@modules/health/health.module';
     UsersModule,
     FilesModule,
     HealthModule,
+    NotificationsModule,
   ],
   // Provided here too so class-validator's container can resolve the async validator.
   providers: [

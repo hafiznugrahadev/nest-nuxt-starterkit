@@ -5,20 +5,21 @@ import { APP_NAME } from '~/lib/constants';
 definePageMeta({ layout: 'dashboard', middleware: ['auth'] });
 useHead({ title: `Dashboard — ${APP_NAME}` });
 
-// Demo metrics (static, like the TailAdmin template's eCommerce dashboard).
-const metrics = [
-  { label: 'Customers', value: '3,782', icon: Users, change: 11.01 },
-  { label: 'Orders', value: '5,359', icon: ShoppingCart, change: -9.05 },
-  { label: 'Revenue', value: '$45.2K', icon: DollarSign, change: 4.3 },
-  { label: 'Growth', value: '8.21%', icon: TrendingUp, change: 1.05 },
-];
+const { t } = useI18n();
+
+const metrics = computed(() => [
+  { label: t('dashboard.metrics.customers'), value: '3,782', icon: Users, change: 11.01 },
+  { label: t('dashboard.metrics.orders'), value: '5,359', icon: ShoppingCart, change: -9.05 },
+  { label: t('dashboard.metrics.revenue'), value: '$45.2K', icon: DollarSign, change: 4.3 },
+  { label: t('dashboard.metrics.growth'), value: '8.21%', icon: TrendingUp, change: 1.05 },
+]);
 </script>
 
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-      <p class="text-sm text-muted-foreground">Welcome back — here's what's happening today.</p>
+      <h1 class="text-2xl font-bold tracking-tight text-foreground">{{ $t('dashboard.title') }}</h1>
+      <p class="text-sm text-muted-foreground">{{ $t('dashboard.subtitle') }}</p>
     </div>
 
     <!-- KPI cards -->

@@ -12,8 +12,8 @@ const { data: user, isLoading, isError, error, refetch } = useMe();
 <template>
   <div class="space-y-6">
     <PageBreadcrumb
-      title="Profile"
-      :crumbs="[{ label: 'Dashboard', to: '/dashboard' }, { label: 'Profile' }]"
+      :title="$t('profile.title')"
+      :crumbs="[{ label: $t('nav.dashboard'), to: '/dashboard' }, { label: $t('profile.title') }]"
     />
 
     <LoadingState v-if="isLoading && !user" />

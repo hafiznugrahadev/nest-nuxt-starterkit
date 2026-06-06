@@ -12,6 +12,6 @@ defineProps<{ asRow?: boolean; colspan?: number }>();
   </tr>
   <div v-else class="flex items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
     <Loader2 class="h-5 w-5 animate-spin" />
-    <span>Loading…</span>
+    <span>{{ $t('state.loading') }}</span>
   </div>
 </template>

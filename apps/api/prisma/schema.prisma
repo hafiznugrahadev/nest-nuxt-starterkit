@@ -23,10 +23,25 @@ model User {
   roles               Role[]               @relation("UserRoles")
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  notifications       Notification[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
   @@map("users")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  type      String    @default("info") // info | success | warning | error
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
 
 model Role {

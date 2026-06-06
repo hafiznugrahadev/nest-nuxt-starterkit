@@ -9,5 +9,6 @@ import { Toaster } from 'vue-sonner';
   <!-- Global toast outlet (vue-sonner). Client-only — it touches the DOM directly. -->
   <ClientOnly>
     <Toaster rich-colors position="top-right" />
+    <CommandPalette />
   </ClientOnly>
 </template>

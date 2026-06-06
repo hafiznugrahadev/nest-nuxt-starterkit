@@ -10,16 +10,14 @@ useHead({ title: `Users — ${APP_NAME}` });
 <template>
   <div class="space-y-6">
     <PageBreadcrumb
-      title="Users"
-      :crumbs="[{ label: 'Dashboard', to: '/dashboard' }, { label: 'Users' }]"
+      :title="$t('users.title')"
+      :crumbs="[{ label: $t('nav.dashboard'), to: '/dashboard' }, { label: $t('users.title') }]"
     />
 
     <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
       <div class="mb-5">
-        <h2 class="text-base font-semibold text-foreground">All accounts</h2>
-        <p class="text-sm text-muted-foreground">
-          Registered users across the workspace (admin only).
-        </p>
+        <h2 class="text-base font-semibold text-foreground">{{ $t('users.allAccounts') }}</h2>
+        <p class="text-sm text-muted-foreground">{{ $t('users.subtitle') }}</p>
       </div>
       <UserTable />
     </div>
