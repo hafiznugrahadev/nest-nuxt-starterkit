@@ -65,7 +65,14 @@ const panelClass = computed(() =>
         "
         @click="open = !open"
       >
+        <img
+          v-if="auth.user?.avatarUrl"
+          :src="auth.user.avatarUrl"
+          :alt="auth.user?.name ?? 'User'"
+          class="h-9 w-9 shrink-0 rounded-full object-cover"
+        />
         <span
+          v-else
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white"
         >
           {{ initials }}

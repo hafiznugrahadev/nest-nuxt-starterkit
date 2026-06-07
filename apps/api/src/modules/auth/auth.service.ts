@@ -28,6 +28,7 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  avatarUrl: string | null;
   roles: string[];
 }
 
@@ -215,7 +216,13 @@ export class AuthService {
   }
 
   private async issueTokens(
-    user: { id: string; email: string; name: string; roles: { name: string }[] },
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      avatarUrl: string | null;
+      roles: { name: string }[];
+    },
     familyId: string,
   ): Promise<AuthTokens> {
     const roles = user.roles.map((r) => r.name);
@@ -231,7 +238,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, name: user.name, roles },
+      user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl, roles },
     };
   }
 }

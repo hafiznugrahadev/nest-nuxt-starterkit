@@ -23,31 +23,54 @@ interface S3Module {
   S3Client: new (config: unknown) => S3ClientLike;
   PutObjectCommand: new (input: unknown) => unknown;
   DeleteObjectCommand: new (input: unknown) => unknown;
+  GetObjectCommand: new (input: unknown) => unknown;
+}
+/** Structural view of `@aws-sdk/s3-request-presigner`. */
+interface PresignerModule {
+  getSignedUrl: (
+    client: S3ClientLike,
+    command: unknown,
+    options: { expiresIn: number },
+  ) => Promise<string>;
 }
 
-// Held as a `string` (not a literal) so the TS compiler treats `@aws-sdk/client-s3`
-// as a runtime-only, OPTIONAL dependency: deployments on the `local` driver never
-// need it installed or resolvable. It is imported lazily only when S3 is active.
+// Held as `string`s (not literals) so the TS compiler treats both AWS packages as
+// runtime-only, OPTIONAL dependencies: deployments on the `local` driver never
+// need them installed or resolvable. They are imported lazily only under S3.
 const S3_SDK: string = '@aws-sdk/client-s3';
+const PRESIGNER_SDK: string = '@aws-sdk/s3-request-presigner';
 
 /**
  * S3-compatible driver (AWS S3, MinIO, RustFS, …). The AWS SDK is loaded lazily
- * (see S3_SDK). Returned URLs assume the bucket/prefix is publicly readable, or
- * that a CDN fronts it via S3_PUBLIC_BASE_URL — swap to presigned GETs for private
- * objects.
+ * (see S3_SDK). Objects are served via `signedUrl()` (presigned, time-limited
+ * GETs), so the bucket stays PRIVATE — no anonymous-read policy required. `url()`
+ * still returns the plain public URL for cases where a CDN/public bucket fronts
+ * the store (S3_PUBLIC_BASE_URL).
  */
 export class S3StorageDriver implements StorageDriver {
   private readonly bucket: string;
   private readonly endpoint?: string;
   private readonly region: string;
   private readonly publicBaseUrl?: string;
+  /** Browser-reachable endpoint the presigned URL is signed for (see below). */
+  private readonly presignEndpoint?: string;
   private clientPromise?: Promise<S3ClientLike>;
+  private presignClientPromise?: Promise<S3ClientLike>;
 
   constructor(private readonly opts: S3DriverOptions) {
     this.bucket = opts.bucket;
     this.endpoint = opts.endpoint?.replace(/\/+$/, '');
     this.region = opts.region;
     this.publicBaseUrl = opts.publicBaseUrl?.replace(/\/+$/, '');
+    // Presigned GETs must be signed for the host the BROWSER will hit, not the
+    // in-cluster endpoint the API uses for put/delete (e.g. http://rustfs:9000,
+    // unreachable from a browser). Path-style public base is `<endpoint>/<bucket>`,
+    // so strip the trailing bucket to recover the public endpoint. Falls back to
+    // the operational endpoint if no public base is configured.
+    const bucketSuffix = `/${this.bucket}`;
+    this.presignEndpoint = this.publicBaseUrl?.endsWith(bucketSuffix)
+      ? this.publicBaseUrl.slice(0, -bucketSuffix.length)
+      : (this.endpoint ?? this.publicBaseUrl);
   }
 
   private async sdk(): Promise<S3Module> {
@@ -56,6 +79,16 @@ export class S3StorageDriver implements StorageDriver {
     } catch {
       throw new Error(
         'STORAGE_DRIVER=s3 requires the "@aws-sdk/client-s3" package. Run: bun add @aws-sdk/client-s3',
+      );
+    }
+  }
+
+  private async presigner(): Promise<PresignerModule> {
+    try {
+      return (await import(PRESIGNER_SDK)) as PresignerModule;
+    } catch {
+      throw new Error(
+        'STORAGE_DRIVER=s3 signed URLs require "@aws-sdk/s3-request-presigner". Run: bun add @aws-sdk/s3-request-presigner',
       );
     }
   }
@@ -76,6 +109,25 @@ export class S3StorageDriver implements StorageDriver {
       );
     }
     return this.clientPromise;
+  }
+
+  /** Lazy client signing for the public (browser-reachable) endpoint — presign only. */
+  private presignClient(): Promise<S3ClientLike> {
+    if (!this.presignClientPromise) {
+      this.presignClientPromise = this.sdk().then(
+        ({ S3Client }) =>
+          new S3Client({
+            region: this.opts.region,
+            endpoint: this.presignEndpoint,
+            forcePathStyle: this.opts.forcePathStyle,
+            credentials:
+              this.opts.accessKeyId && this.opts.secretAccessKey
+                ? { accessKeyId: this.opts.accessKeyId, secretAccessKey: this.opts.secretAccessKey }
+                : undefined,
+          }),
+      );
+    }
+    return this.presignClientPromise;
   }
 
   async upload(input: UploadInput): Promise<StoredFile> {
@@ -100,6 +152,21 @@ export class S3StorageDriver implements StorageDriver {
     const { DeleteObjectCommand } = await this.sdk();
     const client = await this.client();
     await client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+  }
+
+  /**
+   * Presigned, time-limited GET URL for a private object. Signed for the public
+   * endpoint so a browser can fetch it directly; the bucket itself stays private
+   * (no anonymous policy needed). Generation is offline (no network call), so the
+   * in-cluster API never has to reach the public host.
+   */
+  async signedUrl(key: string, expiresInSeconds: number): Promise<string> {
+    const { GetObjectCommand } = await this.sdk();
+    const { getSignedUrl } = await this.presigner();
+    const client = await this.presignClient();
+    return getSignedUrl(client, new GetObjectCommand({ Bucket: this.bucket, Key: key }), {
+      expiresIn: expiresInSeconds,
+    });
   }
 
   url(key: string): string {

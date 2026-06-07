@@ -27,4 +27,11 @@ export interface StorageDriver {
   upload(input: UploadInput): Promise<StoredFile>;
   delete(key: string): Promise<void>;
   url(key: string): string;
+  /**
+   * Time-limited presigned GET URL for a private object. Implemented only by
+   * drivers whose objects aren't publicly readable (s3 keeps its bucket private).
+   * Absent on `local` — its `/uploads` mount is already public — so callers fall
+   * back to `url()` when this is undefined.
+   */
+  signedUrl?(key: string, expiresInSeconds: number): Promise<string>;
 }
