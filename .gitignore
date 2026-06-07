@@ -51,8 +51,10 @@ apps/api/src/generated
 # Local file uploads (storage driver = local)
 apps/api/storage/
 
-# Playwright MCP artifacts
-.playwright-mcp
+# Playwright MCP artifacts — snapshots, console logs, and bare-name
+# screenshots the tool can drop at the repo root.
+.playwright-mcp/
+/*.png
 
 # Playwright
 test-results/
