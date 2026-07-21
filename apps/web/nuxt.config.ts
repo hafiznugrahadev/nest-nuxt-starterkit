@@ -8,23 +8,35 @@ import tailwindcss from '@tailwindcss/vite';
 // <host>:443 routes the socket back through the same proxy to the dev server.
 // Plain localhost dev keeps APP_URL=http://localhost:… and needs no override
 // (native ws on the dev port already works).
-function resolveDevHmr() {
-  const appUrl = process.env.APP_URL;
-  if (!appUrl) return undefined;
-  let url: URL;
+function resolveAppUrl() {
+  const raw = process.env.APP_URL;
+  if (!raw) return undefined;
   try {
-    url = new URL(appUrl);
+    return new URL(raw);
   } catch {
     return undefined;
   }
-  if (url.protocol !== 'https:') return undefined;
+}
+const appUrl = resolveAppUrl();
+
+function resolveDevHmr() {
+  if (!appUrl || appUrl.protocol !== 'https:') return undefined;
   return {
     protocol: 'wss' as const,
-    host: url.hostname,
-    clientPort: url.port ? Number(url.port) : 443,
+    host: appUrl.hostname,
+    clientPort: appUrl.port ? Number(appUrl.port) : 443,
   };
 }
 const devHmr = resolveDevHmr();
+
+// Vite refuses requests whose Host header it doesn't recognise (DNS-rebinding
+// guard). Behind the same OrbStack proxy the browser sends the proxy hostname —
+// e.g. web.starterkit-dev.orb.local — which Vite cannot infer from its own
+// listen address, so the request is rejected with "This host is not allowed"
+// before the app ever renders. Allow exactly the APP_URL host, reusing the
+// single source of truth above so the two can never drift apart. Plain
+// localhost dev needs no entry (Vite already trusts localhost).
+const devAllowedHosts = appUrl && appUrl.hostname !== 'localhost' ? [appUrl.hostname] : undefined;
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -47,21 +59,30 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      // Outfit is TailAdmin's typeface; preconnect + load the weights we use.
+      // IDDS resolves --ina-* under [data-theme] and its brand ramp under
+      // [data-brand]. Setting both on the SSR'd <html> means tokens are defined
+      // on the very first paint; the script below only ever flips theme to dark.
+      htmlAttrs: {
+        'data-theme': 'light',
+        'data-brand': 'inagov',
+      },
+      // Inter is IDDS's typeface. @idds/styles/base also @imports it at 400/500/600;
+      // this link covers the 300 and 700 weights the app additionally uses.
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
         },
       ],
       script: [
         {
           // Anti-FOUC: apply the persisted (or system) theme before first paint so
-          // the dark/light flip never flashes on reload.
+          // the dark/light flip never flashes on reload. Keeps data-theme (IDDS's
+          // selector) and .dark (legacy utilities) in lockstep — see useTheme.ts.
           innerHTML:
-            "(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
+            "(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;var r=document.documentElement;r.setAttribute('data-theme',d?'dark':'light');r.classList.toggle('dark',d);}catch(e){}})();",
           tagPosition: 'head',
         },
       ],
@@ -110,6 +131,7 @@ export default defineNuxtConfig({
         ? { watch: { usePolling: true, interval: 300 } }
         : {}),
       ...(devHmr ? { hmr: devHmr } : {}),
+      ...(devAllowedHosts ? { allowedHosts: devAllowedHosts } : {}),
     },
   },
 

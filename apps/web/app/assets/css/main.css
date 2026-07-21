@@ -1,58 +1,77 @@
+/*
+ * IDDS raw token layer (--ina-*).
+ *
+ * Imported BEFORE tailwindcss on purpose: base.css ships its own CSS reset
+ * (body/button/[type=submit]/th …) alongside the custom properties we actually
+ * want. Loading it first lets Tailwind's preflight win every reset collision,
+ * while the --ina-* variables — which preflight never touches — survive intact.
+ *
+ * It defines light/dark under [data-theme] and the brand ramp under
+ * [data-brand]; both attributes are set on <html> (see nuxt.config).
+ */
+@import '@idds/styles/base';
 @import 'tailwindcss';
 
-/* Class-based dark mode (toggled on <html>) for Tailwind v4. */
-@custom-variant dark (&:is(.dark *));
+/* Palette + semantic scales as Tailwind v4 theme keys (--color-* → --ina-*). */
+@import '@idds/styles/tailwind/css/idds.css';
+/* Brand ramp: primary-*, brand-*, secondary-*, accent-*, *-hover. */
+@import '@idds/styles/tailwind/css/inagov.css';
 
 /*
- * TailAdmin-inspired design system on Tailwind v4.
- * - Static palettes (brand / gray / status) live in @theme and never change.
- * - Semantic tokens (--background, --card, --primary, …) are CSS variables that
- *   flip between light and dark; the existing shadcn-vue components read these via
- *   the `--color-*` aliases below, so they restyle automatically.
+ * IDDS switches on [data-theme='dark']; the kit historically used a .dark class.
+ * Match both so existing `dark:` utilities keep working either way.
  */
+@custom-variant dark (&:is([data-theme='dark'] *, .dark *));
+
 @theme {
   --font-sans:
-    'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Fira Sans', 'Droid Sans', sans-serif;
+  --font-mono:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
-  /* Brand (TailAdmin brand-*) */
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  /*
+   * IDDS makes --color-white/black adaptive (bg-white → #141414 in dark). Every
+   * `text-white` in this app sits on a filled brand surface or a gradient, where
+   * that flip would destroy contrast — so pin them back to literals. Adaptive
+   * surfaces belong on bg-background-primary / text-content-primary instead.
+   */
+  --color-white: #ffffff;
+  --color-black: #141414;
 
-  /* Neutral gray (TailAdmin gray-*) */
-  --color-gray-25: #fcfcfd;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f2f4f7;
-  --color-gray-200: #e4e7ec;
-  --color-gray-300: #d0d5dd;
-  --color-gray-400: #98a2b3;
-  --color-gray-500: #667085;
-  --color-gray-600: #475467;
-  --color-gray-700: #344054;
-  --color-gray-800: #1d2939;
-  --color-gray-900: #101828;
-  --color-gray-950: #0c111d;
+  /*
+   * brand-* → IDDS primary ramp. inagov.css ships only --color-brand-hover, no
+   * numeric scale, so without these aliases the 37 existing brand-* utilities
+   * (bg-brand-500, bg-brand-950, hover:bg-brand-600 …) emit no CSS at all and
+   * silently render as transparent. Aliasing keeps those call sites working and
+   * makes them resolve to the brand ramp, so [data-brand] switching reaches them.
+   */
+  --color-brand-25: var(--ina-primary-25);
+  --color-brand-50: var(--ina-primary-50);
+  --color-brand-100: var(--ina-primary-100);
+  --color-brand-200: var(--ina-primary-200);
+  --color-brand-300: var(--ina-primary-300);
+  --color-brand-400: var(--ina-primary-400);
+  --color-brand-500: var(--ina-primary-500);
+  --color-brand-600: var(--ina-primary-600);
+  --color-brand-700: var(--ina-primary-700);
+  --color-brand-800: var(--ina-primary-800);
+  --color-brand-900: var(--ina-primary-900);
+  /* IDDS's ramp stops at 900; brand-950 (auth panel) reuses the darkest step. */
+  --color-brand-950: var(--ina-primary-900);
 
-  /* Status */
-  --color-success-50: #ecfdf3;
-  --color-success-500: #12b76a;
-  --color-success-600: #039855;
-  --color-warning-50: #fffaeb;
-  --color-warning-500: #f79009;
-  --color-error-50: #fef3f2;
-  --color-error-500: #f04438;
-  --color-error-600: #d92d20;
+  /*
+   * Status aliases. IDDS names these positive and negative; the kit's components
+   * already say success- and error-, so map rather than rewrite 14 call sites.
+   */
+  --color-success-50: var(--ina-positive-100);
+  --color-success-500: var(--ina-positive-500);
+  --color-success-600: var(--ina-positive-600);
+  --color-error-50: var(--ina-negative-100);
+  --color-error-500: var(--ina-negative-500);
+  --color-error-600: var(--ina-negative-600);
 
-  /* Semantic aliases consumed by ui/* components. */
+  /* Semantic aliases consumed by ui/* components (shadcn-vue contract). */
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -71,54 +90,55 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  /* IDDS radius scale (radius-lg = 8px is the component default). */
+  --radius-sm: 0.125rem;
+  --radius-base: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
 
-  --shadow-theme-xs: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
-  --shadow-theme-sm: 0 1px 3px 0 rgba(16, 24, 40, 0.1), 0 1px 2px -1px rgba(16, 24, 40, 0.1);
-  --shadow-theme-md: 0 4px 8px -2px rgba(16, 24, 40, 0.1), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-theme-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-theme-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-theme-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+/*
+ * Semantic layer: shadcn-vue's variable contract expressed in IDDS tokens.
+ * These reference --ina-* rather than hex, so they follow [data-theme] and
+ * [data-brand] automatically — no light/dark duplication needed below.
+ */
 :root {
-  --background: #f9fafb;
-  --foreground: #1d2939;
-  --card: #ffffff;
-  --card-foreground: #1d2939;
-  --primary: #465fff;
+  --background: var(--ina-background-secondary);
+  --foreground: var(--ina-content-primary);
+  --card: var(--ina-background-primary);
+  --card-foreground: var(--ina-content-primary);
+  --primary: var(--ina-primary-500);
   --primary-foreground: #ffffff;
-  --secondary: #f2f4f7;
-  --secondary-foreground: #344054;
-  --muted: #f2f4f7;
-  --muted-foreground: #667085;
-  --accent: #f2f4f7;
-  --accent-foreground: #344054;
-  --destructive: #f04438;
+  --secondary: var(--ina-background-tertiary);
+  --secondary-foreground: var(--ina-content-secondary);
+  --muted: var(--ina-background-tertiary);
+  /* content-tertiary (#a3a3a3) is only 2.3:1 on white — use secondary for text. */
+  --muted-foreground: var(--ina-content-secondary);
+  --accent: var(--ina-neutral-hover);
+  --accent-foreground: var(--ina-content-primary);
+  --destructive: var(--ina-content-negative);
   --destructive-foreground: #ffffff;
-  --border: #e4e7ec;
-  --input: #d0d5dd;
-  --ring: #465fff;
+  --border: var(--ina-stroke-primary);
+  --input: var(--ina-stroke-primary);
+  --ring: var(--ina-primary-500);
   --radius: 0.5rem;
 }
 
-.dark {
-  --background: #0c111d;
-  --foreground: #e4e7ec;
-  --card: #1a2231;
-  --card-foreground: #e4e7ec;
-  --primary: #465fff;
-  --primary-foreground: #ffffff;
-  --secondary: #1d2939;
-  --secondary-foreground: #e4e7ec;
-  --muted: #1d2939;
-  --muted-foreground: #98a2b3;
-  --accent: #344054;
-  --accent-foreground: #f2f4f7;
-  --destructive: #f04438;
-  --destructive-foreground: #ffffff;
-  --border: #2a3441;
-  --input: #344054;
-  --ring: #465fff;
+/* Dark tuning that doesn't fall out of the --ina-* flip on its own. */
+[data-theme='dark'] {
+  /* Brand-500 is tuned for light backgrounds; -400 holds up on dark surfaces. */
+  --primary: var(--ina-primary-400);
+  --ring: var(--ina-primary-400);
+  /* Light-tuned rgba shadows vanish on #141414 — deepen them. */
+  --shadow-theme-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-theme-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+  --shadow-theme-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
 }
 
 * {

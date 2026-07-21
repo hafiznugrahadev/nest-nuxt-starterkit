@@ -48,7 +48,7 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
   <!-- Mobile backdrop -->
   <div
     v-if="isMobileOpen"
-    class="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+    class="bg-background-overlay fixed inset-0 z-40 lg:hidden"
     @click="closeMobile"
   />
 

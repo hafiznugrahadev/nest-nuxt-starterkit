@@ -17,6 +17,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@idds/styles": "^1.6.32",
     "@nuxtjs/i18n": "^10.4.0",
     "@starterkit/shared-types": "workspace:*",
     "@tanstack/vue-query": "^5.62.0",

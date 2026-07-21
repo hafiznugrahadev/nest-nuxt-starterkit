@@ -2,38 +2,38 @@
 import { computed } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 
-/** Radial "monthly target" gauge, matching TailAdmin's eCommerce card. */
-const { isDark } = useTheme();
+/** Radial "monthly target" gauge. Colors come from IDDS tokens, not hex. */
+const { tokens } = useChartTokens();
 
 const series = [75.55];
 
 const options = computed<ApexOptions>(() => ({
   chart: {
     type: 'radialBar',
-    fontFamily: 'Outfit, sans-serif',
+    fontFamily: tokens.value.font,
     sparkline: { enabled: true },
     background: 'transparent',
   },
-  colors: ['#465fff'],
+  colors: [tokens.value.brand],
   plotOptions: {
     radialBar: {
       startAngle: -85,
       endAngle: 85,
       hollow: { size: '70%' },
-      track: { background: isDark.value ? '#2a3441' : '#e4e7ec', strokeWidth: '100%' },
+      track: { background: tokens.value.track, strokeWidth: '100%' },
       dataLabels: {
         name: { show: false },
         value: {
           fontSize: '34px',
           fontWeight: '700',
           offsetY: 8,
-          color: isDark.value ? '#e4e7ec' : '#1d2939',
+          color: tokens.value.strong,
           formatter: (val: number) => `${val}%`,
         },
       },
     },
   },
-  fill: { type: 'solid', colors: ['#465fff'] },
+  fill: { type: 'solid', colors: [tokens.value.brand] },
   stroke: { lineCap: 'round' },
   labels: ['Progress'],
 }));

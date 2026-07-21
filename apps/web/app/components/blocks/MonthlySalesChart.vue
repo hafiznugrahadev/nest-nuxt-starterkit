@@ -2,8 +2,8 @@
 import { computed } from 'vue';
 import type { ApexOptions } from 'apexcharts';
 
-/** Monthly sales bar chart (ApexCharts), matching TailAdmin's eCommerce card. */
-const { isDark } = useTheme();
+/** Monthly sales bar chart (ApexCharts). Colors come from IDDS tokens, not hex. */
+const { tokens, isDark } = useChartTokens();
 
 const series = [
   {
@@ -15,18 +15,18 @@ const series = [
 const options = computed<ApexOptions>(() => ({
   chart: {
     type: 'bar',
-    fontFamily: 'Outfit, sans-serif',
+    fontFamily: tokens.value.font,
     toolbar: { show: false },
     background: 'transparent',
   },
-  colors: ['#465fff'],
+  colors: [tokens.value.brand],
   plotOptions: {
     bar: { horizontal: false, columnWidth: '39%', borderRadius: 5, borderRadiusApplication: 'end' },
   },
   dataLabels: { enabled: false },
   stroke: { show: true, width: 4, colors: ['transparent'] },
   grid: {
-    borderColor: isDark.value ? '#2a3441' : '#e4e7ec',
+    borderColor: tokens.value.grid,
     strokeDashArray: 4,
     yaxis: { lines: { show: true } },
   },
@@ -47,10 +47,10 @@ const options = computed<ApexOptions>(() => ({
     ],
     axisBorder: { show: false },
     axisTicks: { show: false },
-    labels: { style: { colors: isDark.value ? '#98a2b3' : '#667085', fontSize: '12px' } },
+    labels: { style: { colors: tokens.value.label, fontSize: '12px' } },
   },
   yaxis: {
-    labels: { style: { colors: isDark.value ? '#98a2b3' : '#667085', fontSize: '12px' } },
+    labels: { style: { colors: tokens.value.label, fontSize: '12px' } },
   },
   legend: { show: false },
   tooltip: {

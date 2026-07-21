@@ -18,7 +18,7 @@ defineProps<{ title?: string; description?: string }>();
 <template>
   <DialogRoot v-model:open="open">
     <DialogPortal>
-      <DialogOverlay class="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-sm" />
+      <DialogOverlay class="bg-background-overlay fixed inset-0 z-50 backdrop-blur-sm" />
       <DialogContent
         class="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-theme-md focus:outline-none"
       >
