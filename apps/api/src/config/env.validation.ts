@@ -153,6 +153,51 @@ export class EnvironmentVariables {
   @IsBoolean()
   @IsOptional()
   AUTH_REGISTRATION_ENABLED = false;
+
+  // ── Database backups (read-only; consumed by `db:restore`) ─────────────────
+  // All optional: the app must boot fine without any backup config. The CLI
+  // validates what it actually needs at run time.
+  @IsIn(['s3', 'local'])
+  @IsOptional()
+  BACKUP_DRIVER: 's3' | 'local' = 's3';
+
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  BACKUP_RESTORE_UI_ENABLED = false;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_ENDPOINT?: string;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_REGION?: string;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_BUCKET?: string;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_ACCESS_KEY_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_SECRET_ACCESS_KEY?: string;
+
+  @Transform(toBool)
+  @IsBoolean()
+  @IsOptional()
+  BACKUP_S3_FORCE_PATH_STYLE = true;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_S3_PREFIX?: string;
+
+  @IsString()
+  @IsOptional()
+  BACKUP_LOCAL_DIR?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {
