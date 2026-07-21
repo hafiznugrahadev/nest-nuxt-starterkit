@@ -161,6 +161,45 @@ services:
       - api
     networks: [dokploy-network]
 
+  # One-off DB toolbox (bun + psql) for `db:restore`. Behind a profile, so
+  # `docker compose up` never starts it. Run on demand — `run` (not `exec`) gives
+  # it a TTY, which the interactive bucket browser needs:
+  #   docker compose run --rm db-tools                      # browse and pick a dump
+  #   docker compose run --rm db-tools --latest --yes       # newest dump, no prompt
+  #   docker compose run --rm db-tools --path postgres/2026-07
+  db-tools:
+    build:
+      context: .
+      dockerfile: docker/db-tools.Dockerfile
+    profiles: [tools]
+    working_dir: /app
+    entrypoint: ['sh', '/app/docker/db-tools.sh']
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      # In-compose Postgres is `postgres:5432` — NOT the host-mapped port that
+      # DATABASE_URL in .env points at. Set here so it wins over the .env value
+      # (dotenv never overrides a real env var).
+      DATABASE_URL: postgresql://${POSTGRES_USER:-starterkit}:${POSTGRES_PASSWORD:-starterkit}@postgres:5432/${POSTGRES_DB:-starterkit}?schema=public
+      # Backup bucket — same vars as the host CLI. If BACKUP_S3_ENDPOINT points at
+      # localhost, override it here with a host reachable from the container
+      # (an external domain, or `host.docker.internal`).
+      BACKUP_DRIVER: ${BACKUP_DRIVER:-s3}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-us-east-1}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      BACKUP_S3_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
+      BACKUP_S3_FORCE_PATH_STYLE: ${BACKUP_S3_FORCE_PATH_STYLE:-true}
+      BACKUP_S3_PREFIX: ${BACKUP_S3_PREFIX:-}
+      BACKUP_LOCAL_DIR: ${BACKUP_LOCAL_DIR:-./storage/backups}
+    volumes:
+      - ./:/app
+      - api_node_modules:/app/node_modules # shared with the api container
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [dokploy-network]
+
   # Dev mail catcher — SMTP sink + web UI. The API (MAIL_TRANSPORT=smtp) sends here;
   # open the UI to read password-reset and other emails. Not for production.
   mailpit:

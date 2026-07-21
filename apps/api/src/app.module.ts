@@ -8,6 +8,7 @@ import { appConfig } from '@config/app.config';
 import { databaseConfig, redisConfig } from '@config/database.config';
 import { storageConfig } from '@config/storage.config';
 import { mailConfig } from '@config/mail.config';
+import { backupConfig } from '@config/backup.config';
 import { RequestIdMiddleware } from '@common/middleware/request-id.middleware';
 import { IsUniqueConstraint } from '@common/validators/is-unique.validator';
 import { PrismaModule } from '@infrastructure/database/prisma.module';
@@ -29,7 +30,7 @@ import { NotificationsModule } from '@modules/notifications/notifications.module
       // Real env vars (e.g. from docker-compose) still take precedence.
       envFilePath: ['../../.env'],
       validate: validateEnv,
-      load: [appConfig, databaseConfig, redisConfig, storageConfig, mailConfig],
+      load: [appConfig, databaseConfig, redisConfig, storageConfig, mailConfig, backupConfig],
     }),
     // Logger config flows from ConfigService (.env → app.config → here).
     LoggerModule.forRootAsync({
