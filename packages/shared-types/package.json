@@ -23,6 +23,6 @@
     "lint": "echo \"(shared-types) no lint configured\" && exit 0"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^7.0.2"
   }
 }
