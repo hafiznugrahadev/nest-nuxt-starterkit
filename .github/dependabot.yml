@@ -1,72 +1,116 @@
 version: 2
+# Major-version holds: these majors are held on purpose because each needs a
+# real migration, not a lockfile bump. Minors/patches keep flowing. Remove an
+# entry here when you start its migration PR.
+#   typescript 7      — drops moduleResolution node10 + baseUrl and the JS
+#                       compiler API (ts-jest, vue-tsc, typescript-eslint)
+#   @nestjs/* 12      — ESM-only packages break the jest CJS transform
+#   jest 30           — no ts-jest 30 release
+#   @tanstack/vue-table 9 — getCoreRowModel/useVueTable API rework
+#   pinia 4, vue-router 5, @pinia/nuxt 1 — must pair with a Nuxt 4.5 bump
+#   vue-sonner 2      — becomes a Nuxt module; needs Toaster usage migration
+#   zod 4             — @vee-validate/zod still peers zod ^3.24
+#   apexcharts 7      — chart API unverified against the wrapper
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       npm-dependencies:
         patterns:
-          - "*"
+          - '*'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     open-pull-requests-limit: 5
-  - package-ecosystem: "npm"
-    directory: "/apps/api"
+  - package-ecosystem: 'npm'
+    directory: '/apps/api'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       npm-apps-api-dependencies:
         patterns:
-          - "*"
+          - '*'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@nestjs/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'jest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/jest'
+        update-types: ['version-update:semver-major']
     open-pull-requests-limit: 5
-  - package-ecosystem: "npm"
-    directory: "/apps/web"
+  - package-ecosystem: 'npm'
+    directory: '/apps/web'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       npm-apps-web-dependencies:
         patterns:
-          - "*"
+          - '*'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@tanstack/vue-table'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'pinia'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@pinia/nuxt'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vue-router'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vue-sonner'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'zod'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'apexcharts'
+        update-types: ['version-update:semver-major']
     open-pull-requests-limit: 5
-  - package-ecosystem: "npm"
-    directory: "/packages/shared-types"
+  - package-ecosystem: 'npm'
+    directory: '/packages/shared-types'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       npm-packages-shared-types-dependencies:
         patterns:
-          - "*"
+          - '*'
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     open-pull-requests-limit: 5
-  - package-ecosystem: "docker"
-    directory: "/apps/api"
+  - package-ecosystem: 'docker'
+    directory: '/apps/api'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       docker-apps-api-dependencies:
         patterns:
-          - "*"
+          - '*'
     open-pull-requests-limit: 5
-  - package-ecosystem: "docker"
-    directory: "/apps/web"
+  - package-ecosystem: 'docker'
+    directory: '/apps/web'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       docker-apps-web-dependencies:
         patterns:
-          - "*"
+          - '*'
     open-pull-requests-limit: 5
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: 'weekly'
+      day: 'monday'
     groups:
       githubactions-dependencies:
         patterns:
-          - "*"
+          - '*'
     open-pull-requests-limit: 5
