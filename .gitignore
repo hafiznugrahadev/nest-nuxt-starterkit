@@ -60,3 +60,6 @@ apps/api/storage/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# ZCode CLI session artifacts (plans, memory, scratch)
+.zcode/
