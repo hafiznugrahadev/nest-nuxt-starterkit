@@ -28,7 +28,7 @@ export function useChartTokens() {
       label: read('--muted-foreground', '#525252'),
       strong: read('--foreground', '#1f1f1f'),
       track: read('--muted', '#f2f2f2'),
-      font: read('--font-sans', 'Inter, sans-serif'),
+      font: read('--font-sans', 'Google Sans, sans-serif'),
     };
   });
 
