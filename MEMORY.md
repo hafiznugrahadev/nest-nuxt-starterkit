@@ -411,3 +411,19 @@ Read this file at the start of every session. Never contradict a logged decision
 
 - Keeping `CheckboxField`'s inline `CheckboxRoot` styling — duplicated the primitive's classes; extracting `ui/Checkbox.vue` keeps DRY (one source of truth, like Button/Card/Badge).
 - Adding `@vueuse/core` just for `reactiveOmit` — one-line Vue 3.5 rest-spread does the same without a new dependency.
+
+---
+
+## 2026-09-02, NestJS 12 adopted with vitest; TypeScript 7 verified NOT supported and declined
+
+**id:** `01a06102-9d06-7ed4-8461-5a44f814119e`
+
+**What was decided:** API upgraded to `@nestjs/*` 12 (whole family, incl. cli/schematics/testing; config 4→12) and the test runner migrated Jest→**Vitest** (`vitest.config.ts` + `test/vitest.e2e.config.ts`, explicit `import { describe… } from 'vitest'` per spec, tsconfig `types` untouched, `vite-tsconfig-paths` NOT added — aliases inlined in the two configs). jest/ts-jest/@types/jest removed; `@nestjs/*` + jest ignore entries dropped from dependabot.yml. **TypeScript stays ^5.7.2**: TS 7 was researched and rejected — 7.0 ships no compiler API (nest build/CLI need it; new API expected in 7.1) and vue-tsc/typescript-eslint still require TS 5/6 (peer `<6.1`). This _extends_, not contradicts, the earlier TS-hold decision: the hold on @nestjs/* was lifted by completing its migration PR as the playbook prescribed. Known wrinkle kept: `@nestjs/throttler` 6.5.0 peers only ^11 (no Nest-12 release yet) — runtime-verified fine, expect a peer warning until throttler ships an update.
+
+**Why:** NestJS 12 packages are ESM-only; Jest's CJS module runtime cannot load them (verified: suite failed with "Must use import to load ES Module" — Bun's require(esm) doesn't help because Jest hijacks module loading). Vitest is the path NestJS 12's own migration guide pushes for ESM projects and was already in the workspace (web). Verified: 40/40 tests green in ~1s (jest: 2.7s), all workspace gates green, container runtime on @nestjs/core 12.0.1 serving health+login 200.
+
+**What was rejected:**
+
+- Jest ESM mode (ts-jest ESM presets) — experimental, forces `.js` extensions on relative imports across the app.
+- TS 7 / tsgo side-by-side for typecheck only — out of scope for this PR; TS 6 remains the stepping stone when wanted (playbook in the 2026-09-02 dependency decision above).
+- `vite-tsconfig-paths` — one more devDep for 6 aliases that two config files already encode.
