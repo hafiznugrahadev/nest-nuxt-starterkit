@@ -190,7 +190,9 @@ export class BackupStorageService implements BackupStorage {
       entries = await readdir(dir, { withFileTypes: true });
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        throw new Error(`Backup directory not found: ${dir} (set BACKUP_LOCAL_DIR)`);
+        throw new Error(`Backup directory not found: ${dir} (set BACKUP_LOCAL_DIR)`, {
+          cause: error,
+        });
       }
       throw error;
     }
