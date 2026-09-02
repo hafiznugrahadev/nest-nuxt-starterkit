@@ -2,7 +2,7 @@
 import { ArrowDown, ArrowUp, type LucideIcon } from 'lucide-vue-next';
 
 /**
- * TailAdmin-style KPI card: an icon tile, a label + value, and a trend badge.
+ * Polygon-style KPI card: tinted icon tile, label + value, and a trend badge.
  */
 const props = defineProps<{
   label: string;
@@ -15,8 +15,10 @@ const isUp = computed(() => (props.change ?? 0) >= 0);
 </script>
 
 <template>
-  <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
-    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-foreground">
+  <div class="rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
+    <div
+      class="flex h-12 w-12 items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-accent-foreground"
+    >
       <component :is="icon" class="h-6 w-6" />
     </div>
 

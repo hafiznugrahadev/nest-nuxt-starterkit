@@ -14,7 +14,7 @@ useHead({ title: `Users — ${APP_NAME}` });
       :crumbs="[{ label: $t('nav.dashboard'), to: '/dashboard' }, { label: $t('users.title') }]"
     />
 
-    <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
+    <div class="rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
       <div class="mb-5">
         <h2 class="text-base font-semibold text-foreground">{{ $t('users.allAccounts') }}</h2>
         <p class="text-sm text-muted-foreground">{{ $t('users.subtitle') }}</p>
