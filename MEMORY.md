@@ -324,3 +324,90 @@ Read this file at the start of every session. Never contradict a logged decision
 - Rendering the avatar only on the Profile card — the header/sidebar are where users actually look; initials-only there reads as "the upload didn't work."
 
 > Gotcha: `nest start --watch` does NOT pick up edits over the macOS Docker bind mount (no inotify events cross the boundary) — restart the api container (`docker compose restart api`) after BE source changes, or the running code stays stale. (The web/Nuxt side polls via `NUXT_DEV_POLLING=true`, so it HMRs fine.)
+
+---
+
+## 2026-09-02, Web redesign follows the Polygon design system via token-extension, not rewrite
+
+**id:** `01a060b5-58af-7218-a8ba-93ed378ef878`
+
+**What was decided:** The web app (admin shell + auth + landing) adopts the Polygon design language (polygon.tabalongkab.go.id) by extending the existing `--ina-*` → semantic → `@theme` pipeline in `apps/web/app/assets/css/main.css`: adds `--sidebar-*` (white surface, #eff5fd active tint), `--success/--warning/--info`, `--chart-1..5`, `--popover`, `--shadow-card`, navy/mint landing surfaces — each with Polygon's dark-mode values.
+
+**Why:** Polygon's palette IS the IDDS/inagov values this repo already ships (primary #0956c3, bg #f8f8f7, ink #1f1f1f, border #e5e5e5, destructive #f02d2d, success #288034, dark bg #141414 / primary #196bcd), so extending tokens keeps dark mode, `[data-brand]` switching, and chart token-tracking (`useChartTokens`) working for free. PR #24.
+
+**What was rejected:**
+
+- Dropping `@idds/styles` and hardcoding Polygon vars — touches 37 `brand-*` + 14 `success/error-*` call sites, loses brand switching, bigger diff for zero visual gain.
+- Rebuilding components from Polygon's compiled CSS — the 6 hand-rolled shadcn-style primitives only needed token swaps (314 semantic-utility usages vs 9 raw hex colors in the app).
+
+---
+
+## 2026-09-02, Typography: Poppins headings (Semi-Bold) + Google Sans body (Regular)
+
+**id:** `01a060b5-58b4-7b18-8a8b-445413919a11`
+
+**What was decided:** Headings use **Poppins** at weight 600 (Semi-Bold; 700 allowed for display values like KPI numbers), body uses **Google Sans** at 400 (Regular). The heading rule is global in `main.css` (`h1–h6` + `[data-slot='card-title']`); fonts load from the single Google Fonts URL in `nuxt.config.ts`. Text contrast must meet WCAG ≥ 4.5:1 against its background.
+
+**Why:** Public-portal character — close to the people, flexible, inclusive; round, non-rigid letterforms suit government services; matches Polygon 1:1.
+
+**What was rejected:**
+
+- Noto Sans (the globally-complete alternative) — breaks parity with the Polygon reference.
+- Inter (IDDS's default) — fully removed: head link swapped, `@idds/styles`'s Google-Fonts `@import` stripped via `bun patch` (patches/@idds%2Fstyles@1.6.32.patch), and `body { font-family }` re-declared in main.css because the package's reset sets `font-family: 'Inter'` directly on `<body>` — a direct declaration beats inheritance from `<html>` regardless of import order (this is why admin pages still showed Inter after the first pass).
+
+---
+
+## 2026-09-02, Input metrics normalized to Polygon's recipe exactly
+
+**id:** `01a060b5-58b4-7d28-9b99-14ae37d2d450`
+
+**What was decided:** Every input surface uses Polygon's exact recipe: `h-9 · rounded-lg · border-input · bg-background · px-3 · text-sm · placeholder:text-muted-foreground/50 · focus:border-ring + ring-ring/20` (textarea keeps `min-h` sizing — no textarea exists in the Polygon reference to copy).
+
+**Why:** The app read "bigger than Polygon"; the audit found h-11 + px-4 + shadow on the user form modal, h-10 on the users search, and `rounded-md` + `shadow-sm` + old focus patterns on the generic Input/Date/File/TagInput fields. Source of truth = the input markup extracted from the Polygon reference HTML.
+
+**What was rejected:**
+
+- Keeping TailAdmin-era sizes with color retints only — visual mismatch persisted.
+- A shared `inputClass` constant — after normalization only one call site (UserFormModal) needed custom classes; DRY is better served by the component + token layer.
+
+---
+
+## 2026-09-02, Dependency upgrades: minors/patches via Dependabot, majors held behind ignore rules
+
+**id:** `01a060b5-58b4-73e2-8a99-ebdabb22cb24`
+
+**What was decided:** Dependabot #22 merged with nine majors held on the PR branch (typescript 7, @nestjs/* 12, jest 30, @tanstack/vue-table 9, pinia 4 + vue-router 5 + @pinia/nuxt 1, vue-sonner 2, zod 4, apexcharts 7); `ignore: update-types: ["version-update:semver-major"]` rules for those packages now live in `.github/dependabot.yml` so weekly groups keep proposing minors/patches only. Remove an ignore entry when starting that migration.
+
+**Why:** Each held major needs a real migration, not a lockfile bump (TS 7 removes `moduleResolution: node10` + `baseUrl` + the JS compiler API ts-jest/vue-tsc/typescript-eslint need; Nest 12 is ESM-only and breaks the jest CJS transform; pinia 4 / router 5 pair with a Nuxt 4.5 bump; vue-sonner 2 becomes a Nuxt module; zod 4 blocked by `@vee-validate/zod` peer ^3.24).
+
+**What was rejected:**
+
+- Merging #22 as-is — breaks build/test on main.
+- `@dependabot ignore` comments — closes the current PR and stalls the whole group until next week's run.
+
+---
+
+## 2026-09-02, Standing workflow rules
+
+**id:** `01a060b5-58b5-740f-a88b-39c04824371b`
+
+**What was decided:** (1) Read MEMORY.md at session start; entries get UUID v7 ids; never contradict a logged decision without flagging. (2) Check ERRORS.md before suggesting approaches; log anything that took >2 attempts. (3) End every coding task with a short status block (files changed / modified / intentionally untouched / follow-up). (4) Never commit/push unless explicitly told. (5) DRY — always consider making/using reusable components. (6) Check and avoid N+1 queries.
+
+**Why:** Explicit user directive (2026-09-02).
+
+**What was rejected:** None — directive.
+
+---
+
+## 2026-09-02, Form controls follow shadcn-vue's official sources on reka-ui primitives
+
+**id:** `01a060c2-f27e-75dc-81db-6bbb9f931561`
+
+**What was decided:** Every form control is a hand-rolled shadcn-vue component in `apps/web/app/components/ui/` mirroring the **official shadcn-vue source** (new-york-v4 registry): `data-slot` attributes, `useForwardPropsEmits` prop forwarding, `aria-invalid` variants, and the official class strings — adapted only where the repo lacks the dependency (e.g. Checkbox's `reactiveOmit` from @vueuse/core is replaced by Vue 3.5 reactive props rest-spread) or where our Polygon input recipe applies. New `ui/Checkbox.vue` added this way; `CheckboxField` now composes it; the last two native `<input type="checkbox">` (UserFormModal role toggles, login keep-logged-in) were replaced. Binding at call sites is `v-model:checked` / `:checked` + `@update:checked` (reka-ui contract), not `v-model`.
+
+**Why:** Native checkboxes rendered unstyled off-system (TailAdmin leftovers with old `brand-*` focus classes); the shadcn-vue docs URL was given as the reference by the user. Zero native checkboxes remain (verified in-browser: `input[type=checkbox]` count = 0 on /users modal and /login).
+
+**What was rejected:**
+
+- Keeping `CheckboxField`'s inline `CheckboxRoot` styling — duplicated the primitive's classes; extracting `ui/Checkbox.vue` keeps DRY (one source of truth, like Button/Card/Badge).
+- Adding `@vueuse/core` just for `reactiveOmit` — one-line Vue 3.5 rest-spread does the same without a new dependency.
