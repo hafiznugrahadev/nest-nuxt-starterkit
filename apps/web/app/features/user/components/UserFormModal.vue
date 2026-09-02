@@ -54,7 +54,7 @@ function toggleRole(role: string, checked: boolean) {
 }
 
 const inputClass =
-  'h-11 w-full rounded-lg border border-border bg-transparent px-4 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10';
+  'h-9 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20';
 
 const onSubmit = handleSubmit(async (values) => {
   try {

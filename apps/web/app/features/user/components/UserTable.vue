@@ -103,7 +103,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
           <input
             v-model="search"
             :placeholder="$t('users.search')"
-            class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-3 focus:ring-primary/15"
+            class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
         <!-- Role filter as multi-select tags (server-side; API is source of truth) -->

@@ -59,16 +59,25 @@ const features = computed(() => [
             <Button
               v-if="auth.isAuthenticated"
               size="lg"
-              class="rounded-xl px-7"
+              class="h-auto rounded-xl px-7 py-3.5 text-[15px]"
               @click="navigateTo('/dashboard')"
             >
               {{ $t('home.goToDashboard') }}
             </Button>
-            <Button v-else size="lg" class="rounded-xl px-7" @click="navigateTo('/login')">
+            <Button
+              v-else
+              size="lg"
+              class="h-auto rounded-xl px-7 py-3.5 text-[15px]"
+              @click="navigateTo('/login')"
+            >
               {{ $t('home.signIn') }}
             </Button>
             <template #fallback>
-              <Button size="lg" class="rounded-xl px-7" @click="navigateTo('/login')">
+              <Button
+                size="lg"
+                class="h-auto rounded-xl px-7 py-3.5 text-[15px]"
+                @click="navigateTo('/login')"
+              >
                 {{ $t('home.signIn') }}
               </Button>
             </template>
