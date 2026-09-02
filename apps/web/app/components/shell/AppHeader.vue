@@ -18,7 +18,10 @@ const { openPalette } = useCommandPalette();
           :aria-label="isMobileOpen ? 'Close menu' : 'Open menu'"
           @click="toggleMobile"
         >
-          <component :is="isMobileOpen ? PanelLeftClose : PanelLeftOpen" class="h-5 w-5" />
+          <component
+            :is="isMobileOpen ? PanelLeftClose : PanelLeftOpen"
+            class="h-[18px] w-[18px]"
+          />
         </button>
         <button
           type="button"
@@ -26,7 +29,7 @@ const { openPalette } = useCommandPalette();
           :aria-label="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'"
           @click="toggleExpanded"
         >
-          <component :is="isExpanded ? PanelLeftClose : PanelLeftOpen" class="h-5 w-5" />
+          <component :is="isExpanded ? PanelLeftClose : PanelLeftOpen" class="h-[18px] w-[18px]" />
         </button>
 
         <button

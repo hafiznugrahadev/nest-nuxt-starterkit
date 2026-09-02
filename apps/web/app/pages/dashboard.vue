@@ -18,7 +18,7 @@ const metrics = computed(() => [
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-2xl font-bold tracking-tight text-foreground">{{ $t('dashboard.title') }}</h1>
+      <h1 class="text-xl font-bold tracking-tight text-foreground">{{ $t('dashboard.title') }}</h1>
       <p class="text-sm text-muted-foreground">{{ $t('dashboard.subtitle') }}</p>
     </div>
 

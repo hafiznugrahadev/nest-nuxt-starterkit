@@ -42,7 +42,7 @@ const options = computed<ApexOptions>(() => ({
 <template>
   <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
     <div class="mb-2">
-      <h3 class="text-base font-semibold text-foreground">Monthly Target</h3>
+      <h3 class="text-sm font-semibold text-foreground">Monthly Target</h3>
       <p class="mt-1 text-sm text-muted-foreground">Target you've set for this month</p>
     </div>
 

@@ -48,7 +48,7 @@ const features = computed(() => [
         <p class="mb-5 inline-block text-xs font-bold uppercase tracking-[0.14em] text-blue-light">
           {{ $t('home.eyebrow') }}
         </p>
-        <h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           {{ APP_NAME }}
         </h1>
         <p class="mx-auto mt-6 max-w-xl leading-relaxed text-white/70">
@@ -91,9 +91,9 @@ const features = computed(() => [
       <div class="grid gap-5 sm:grid-cols-3">
         <Card v-for="f in features" :key="f.title" class="p-6">
           <div
-            class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-accent-foreground"
+            class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-accent-foreground"
           >
-            <component :is="f.icon" class="h-6 w-6" />
+            <component :is="f.icon" class="h-5 w-5" />
           </div>
           <h2 class="font-semibold text-foreground">{{ f.title }}</h2>
           <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">{{ f.text }}</p>

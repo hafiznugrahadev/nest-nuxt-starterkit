@@ -7,7 +7,7 @@ defineProps<{ title: string; crumbs?: Crumb[] }>();
 
 <template>
   <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-    <h1 class="text-xl font-semibold tracking-tight text-foreground">{{ title }}</h1>
+    <h1 class="text-lg font-semibold tracking-tight text-foreground">{{ title }}</h1>
     <Breadcrumb v-if="crumbs?.length" :items="crumbs" />
   </div>
 </template>

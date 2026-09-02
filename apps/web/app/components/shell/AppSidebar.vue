@@ -68,11 +68,11 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
         @click="closeMobile"
       >
         <span
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
         >
-          <Boxes class="h-5 w-5" />
+          <Boxes class="h-[18px] w-[18px]" />
         </span>
-        <span v-if="showFull" class="text-lg tracking-tight text-foreground">{{ APP_NAME }}</span>
+        <span v-if="showFull" class="text-base tracking-tight text-foreground">{{ APP_NAME }}</span>
       </NuxtLink>
     </div>
 
@@ -99,7 +99,7 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
             ]"
             @click="closeMobile"
           >
-            <component :is="item.icon" class="h-5 w-5 shrink-0" />
+            <component :is="item.icon" class="h-[18px] w-[18px] shrink-0" />
             <span v-if="showFull">{{ $t(item.label) }}</span>
           </NuxtLink>
         </li>

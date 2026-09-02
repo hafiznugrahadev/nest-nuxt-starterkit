@@ -64,7 +64,7 @@ const options = computed<ApexOptions>(() => ({
 <template>
   <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
     <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-base font-semibold text-foreground">Monthly Sales</h3>
+      <h3 class="text-sm font-semibold text-foreground">Monthly Sales</h3>
     </div>
     <ClientOnly>
       <apexchart type="bar" height="320" :options="options" :series="series" />

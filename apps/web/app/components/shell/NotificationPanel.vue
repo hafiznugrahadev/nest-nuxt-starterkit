@@ -50,7 +50,7 @@ async function handleClick(id: string) {
         class="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         :aria-label="$t('notifications.title')"
       >
-        <Bell class="h-5 w-5" />
+        <Bell class="h-[18px] w-[18px]" />
         <span
           v-if="store.unreadCount > 0"
           class="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-brand-500 ring-2 ring-card"

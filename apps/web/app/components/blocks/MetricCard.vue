@@ -17,15 +17,15 @@ const isUp = computed(() => (props.change ?? 0) >= 0);
 <template>
   <div class="rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
     <div
-      class="flex h-12 w-12 items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-accent-foreground"
+      class="flex h-10 w-10 items-center justify-center rounded-xl bg-sidebar-accent text-sidebar-accent-foreground"
     >
-      <component :is="icon" class="h-6 w-6" />
+      <component :is="icon" class="h-5 w-5" />
     </div>
 
     <div class="mt-5 flex items-end justify-between gap-3">
       <div>
         <p class="text-sm text-muted-foreground">{{ label }}</p>
-        <p class="mt-1 text-2xl font-bold tracking-tight text-foreground">{{ value }}</p>
+        <p class="mt-1 text-xl font-bold tracking-tight text-foreground">{{ value }}</p>
       </div>
 
       <span

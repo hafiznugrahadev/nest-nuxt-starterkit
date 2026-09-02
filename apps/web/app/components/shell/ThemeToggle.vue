@@ -13,8 +13,8 @@ const { isDark, toggle } = useTheme();
       :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       @click="toggle"
     >
-      <Moon v-if="isDark" class="h-5 w-5" />
-      <Sun v-else class="h-5 w-5" />
+      <Moon v-if="isDark" class="h-[18px] w-[18px]" />
+      <Sun v-else class="h-[18px] w-[18px]" />
     </button>
     <template #fallback>
       <div class="h-11 w-11 rounded-full border border-border bg-card" />
