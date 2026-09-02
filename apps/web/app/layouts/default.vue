@@ -10,7 +10,7 @@ const { isExpanded } = useSidebar();
     <div
       :class="[
         'min-h-screen transition-[margin] duration-300 ease-in-out',
-        isExpanded ? 'lg:ml-[290px]' : 'lg:ml-[90px]',
+        isExpanded ? 'lg:ml-60' : 'lg:ml-[90px]',
       ]"
     >
       <AppHeader />

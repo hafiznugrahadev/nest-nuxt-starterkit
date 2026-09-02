@@ -54,14 +54,14 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
 
   <aside
     :class="[
-      'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card transition-[width,transform] duration-300 ease-in-out',
-      'w-[290px]',
-      isExpanded ? 'lg:w-[290px]' : 'lg:w-[90px]',
+      'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-sidebar-border bg-sidebar transition-[width,transform] duration-300 ease-in-out',
+      'w-60',
+      isExpanded ? 'lg:w-60' : 'lg:w-[90px]',
       isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
     ]"
   >
     <!-- Brand -->
-    <div :class="['flex h-16 items-center', showFull ? 'px-6' : 'justify-center px-0']">
+    <div :class="['flex h-14 items-center', showFull ? 'px-5' : 'justify-center px-0']">
       <NuxtLink
         to="/dashboard"
         class="flex items-center gap-2.5 font-semibold"
@@ -91,11 +91,11 @@ const showFull = computed(() => isMobileOpen.value || isExpanded.value);
           <NuxtLink
             :to="item.to"
             :class="[
-              'group flex items-center rounded-lg text-sm font-medium transition-colors',
-              showFull ? 'gap-3 px-3 py-2.5' : 'justify-center px-0 py-2.5',
+              'group relative flex items-center rounded-lg text-sm font-medium transition-colors',
+              showFull ? 'gap-3 px-3 py-2' : 'justify-center px-0 py-2',
               isActive(item.to)
-                ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15'
-                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                ? 'bg-sidebar-accent font-semibold text-sidebar-accent-foreground before:absolute before:left-0 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:bg-primary'
+                : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
             ]"
             @click="closeMobile"
           >
