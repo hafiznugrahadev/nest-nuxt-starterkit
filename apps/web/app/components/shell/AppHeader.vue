@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Menu, Search } from 'lucide-vue-next';
+import { PanelLeftClose, PanelLeftOpen, Search } from 'lucide-vue-next';
 import { useCommandPalette } from '~/composables/useCommandPalette';
 
-const { toggleMobile, toggleExpanded } = useSidebar();
+const { toggleMobile, toggleExpanded, isExpanded, isMobileOpen } = useSidebar();
 const { openPalette } = useCommandPalette();
 </script>
 
@@ -15,18 +15,18 @@ const { openPalette } = useCommandPalette();
         <button
           type="button"
           class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
-          aria-label="Open menu"
+          :aria-label="isMobileOpen ? 'Close menu' : 'Open menu'"
           @click="toggleMobile"
         >
-          <Menu class="h-5 w-5" />
+          <component :is="isMobileOpen ? PanelLeftClose : PanelLeftOpen" class="h-5 w-5" />
         </button>
         <button
           type="button"
           class="hidden h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
-          aria-label="Collapse sidebar"
+          :aria-label="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'"
           @click="toggleExpanded"
         >
-          <Menu class="h-5 w-5" />
+          <component :is="isExpanded ? PanelLeftClose : PanelLeftOpen" class="h-5 w-5" />
         </button>
 
         <button
