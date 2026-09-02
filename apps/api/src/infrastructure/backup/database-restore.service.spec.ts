@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { Readable } from 'node:stream';
 import { databaseNameFromUrl, DatabaseRestoreService } from './database-restore.service';
 
@@ -25,10 +26,7 @@ describe('DatabaseRestoreService', () => {
 
   it('refuses a production restore without --force, before touching the schema', async () => {
     const service = new DatabaseRestoreService();
-    const runPsql = jest.spyOn(
-      service as unknown as { runPsql: () => Promise<void> },
-      'runPsql' as never,
-    );
+    const runPsql = vi.spyOn(service as unknown as { runPsql: () => Promise<void> }, 'runPsql');
 
     await expect(service.restore(input({ nodeEnv: 'production' }))).rejects.toThrow(
       'Refusing to restore in production without --force.',
@@ -39,14 +37,15 @@ describe('DatabaseRestoreService', () => {
   it('drops and recreates the schema before applying the dump', async () => {
     const service = new DatabaseRestoreService();
     const calls: { args: string[]; hasStdin: boolean }[] = [];
-    jest.spyOn(service as unknown as { runPsql: unknown }, 'runPsql' as never).mockImplementation(((
-      _url: string,
-      args: string[],
-      stdin?: unknown,
-    ) => {
+    vi.spyOn(
+      service as unknown as {
+        runPsql: (url: string, args: string[], stdin?: unknown) => Promise<void>;
+      },
+      'runPsql',
+    ).mockImplementation((_url: string, args: string[], stdin?: unknown) => {
       calls.push({ args, hasStdin: Boolean(stdin) });
       return Promise.resolve();
-    }) as never);
+    });
 
     await service.restore(input());
 
@@ -60,9 +59,9 @@ describe('DatabaseRestoreService', () => {
 
   it('allows a forced production restore', async () => {
     const service = new DatabaseRestoreService();
-    jest
-      .spyOn(service as unknown as { runPsql: unknown }, 'runPsql' as never)
-      .mockResolvedValue(undefined as never);
+    vi.spyOn(service as unknown as { runPsql: () => Promise<void> }, 'runPsql').mockResolvedValue(
+      undefined,
+    );
 
     await expect(
       service.restore(input({ nodeEnv: 'production', force: true })),

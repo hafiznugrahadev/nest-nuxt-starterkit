@@ -53,3 +53,13 @@
 **What worked:** Re-declare `body { font-family: var(--font-sans); }` in our `main.css` (loaded after the package import) — computed styles on the dashboard then resolved to Google Sans/Poppins with zero Inter fonts loaded.
 
 **Note for next time:** When a package reset styles elements directly, override the same selector in app CSS — inheritance-based overrides will silently lose.
+
+---
+
+## Dev container node_modules volume not re-linking after manifest changes
+
+**What didn't work:** After changing dependency versions on the host (lockfile rewritten), `docker compose up -d --force-recreate api` re-ran the entrypoint's `bun install --frozen-lockfile` — the new packages were extracted into `node_modules/.bun` (both old and new versions present) but the workspace symlinks (`apps/api/node_modules/@nestjs/core`) still pointed at the OLD version, so the app silently ran the old dependency tree.
+
+**What worked:** Stop + remove the container, delete its named volume (`docker volume rm starterkit-dev_api_node_modules`), `docker compose up -d api` — the cold install links the new versions. Verify with `docker exec starterkit-api-dev grep '"version"' /app/apps/api/node_modules/@nestjs/core/package.json` (workspace path — the ROOT `node_modules/@nestjs/*` may legitimately not exist under bun's isolated layout).
+
+**Note for next time:** After any dependency bump, check the version INSIDE the container (workspace node_modules path), not just that the container boots. If stale: volume wipe beats re-create.

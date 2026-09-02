@@ -2,15 +2,14 @@ version: 2
 # Major-version holds: these majors are held on purpose because each needs a
 # real migration, not a lockfile bump. Minors/patches keep flowing. Remove an
 # entry here when you start its migration PR.
-#   typescript 7      — drops moduleResolution node10 + baseUrl and the JS
-#                       compiler API (ts-jest, vue-tsc, typescript-eslint)
-#   @nestjs/* 12      — ESM-only packages break the jest CJS transform
-#   jest 30           — no ts-jest 30 release
+#   typescript 7      — 7.0 ships no compiler API (nest build, vue-tsc,
+#                       typescript-eslint all need it); revisit around TS 7.1
 #   @tanstack/vue-table 9 — getCoreRowModel/useVueTable API rework
 #   pinia 4, vue-router 5, @pinia/nuxt 1 — must pair with a Nuxt 4.5 bump
 #   vue-sonner 2      — becomes a Nuxt module; needs Toaster usage migration
 #   zod 4             — @vee-validate/zod still peers zod ^3.24
 #   apexcharts 7      — chart API unverified against the wrapper
+# (migrated and un-held: @nestjs/* 12 + jest→vitest swap, 2026-09-02)
 updates:
   - package-ecosystem: 'npm'
     directory: '/'
@@ -36,12 +35,6 @@ updates:
           - '*'
     ignore:
       - dependency-name: 'typescript'
-        update-types: ['version-update:semver-major']
-      - dependency-name: '@nestjs/*'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'jest'
-        update-types: ['version-update:semver-major']
-      - dependency-name: '@types/jest'
         update-types: ['version-update:semver-major']
     open-pull-requests-limit: 5
   - package-ecosystem: 'npm'

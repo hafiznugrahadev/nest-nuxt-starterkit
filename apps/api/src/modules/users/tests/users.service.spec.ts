@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { UsersService } from '../users.service';
 import type { UsersRepository } from '../users.repository';
 import type { RedisService } from '@infrastructure/redis/redis.service';
@@ -6,10 +7,10 @@ import type { QueryUserDto } from '../dto/query-user.dto';
 const emptyPage = { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } };
 
 function makeService(redisGet: unknown = null) {
-  const repository = { paginate: jest.fn().mockResolvedValue(emptyPage) };
+  const repository = { paginate: vi.fn().mockResolvedValue(emptyPage) };
   const redis = {
-    get: jest.fn().mockResolvedValue(redisGet),
-    set: jest.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(redisGet),
+    set: vi.fn().mockResolvedValue(undefined),
   };
   const service = new UsersService(
     repository as unknown as UsersRepository,

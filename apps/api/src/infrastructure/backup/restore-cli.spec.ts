@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { browseForBackup, formatBytes, parseRestoreArgs } from './restore-cli';
 import type { BackupListing } from './backup-storage.types';
 
