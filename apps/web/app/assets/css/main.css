@@ -241,6 +241,15 @@ html {
 }
 
 /*
+ * IDDS's reset sets `font-family: 'Inter', …` directly on <body>, which beats
+ * inheritance from <html> no matter the import order — re-declare it here so
+ * Google Sans actually reaches every page (this file loads after the package).
+ */
+body {
+  font-family: var(--font-sans);
+}
+
+/*
  * Polygon heading typography: Poppins for every heading (and card titles via
  * the data-slot hook, mirroring the Polygon rule 1:1).
  */
