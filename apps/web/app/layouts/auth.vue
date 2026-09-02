@@ -18,8 +18,16 @@ import { APP_NAME } from '~/lib/constants';
       </div>
     </div>
 
-    <!-- Brand side -->
-    <div class="relative hidden items-center justify-center overflow-hidden bg-brand-950 lg:flex">
+    <!-- Brand side — Polygon navy with blurred orbs (lp-hero style) -->
+    <div class="relative hidden items-center justify-center overflow-hidden bg-navy-deep lg:flex">
+      <div
+        class="pointer-events-none absolute -right-36 -top-44 aspect-square w-[620px] rounded-full blur-[60px]"
+        style="background: radial-gradient(circle, rgba(9, 86, 195, 0.32), transparent 65%)"
+      />
+      <div
+        class="pointer-events-none absolute -bottom-32 -left-40 aspect-square w-[480px] rounded-full blur-[60px]"
+        style="background: radial-gradient(circle, rgba(52, 211, 153, 0.1), transparent 65%)"
+      />
       <div
         class="absolute inset-0 opacity-30"
         style="
