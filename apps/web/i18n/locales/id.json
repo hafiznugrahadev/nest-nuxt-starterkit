@@ -68,6 +68,7 @@
     "retry": "Coba lagi"
   },
   "home": {
+    "eyebrow": "Starter Kit NestJS + Nuxt",
     "description": "Starter kit monorepo NestJS + Nuxt — autentikasi, akses berbasis peran, tabel data pengguna, dan komponen yang siap dikembangkan.",
     "goToDashboard": "Ke dasbor",
     "signIn": "Masuk",

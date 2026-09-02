@@ -66,14 +66,15 @@ export default defineNuxtConfig({
         'data-theme': 'light',
         'data-brand': 'inagov',
       },
-      // Inter is IDDS's typeface. @idds/styles/base also @imports it at 400/500/600;
-      // this link covers the 300 and 700 weights the app additionally uses.
+      // Polygon type system: Google Sans (UI) + Poppins (headings — see the
+      // heading rule in main.css). @idds/styles/base also @imports Inter, but
+      // nothing references it anymore once --font-sans leads with Google Sans.
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap',
         },
       ],
       script: [

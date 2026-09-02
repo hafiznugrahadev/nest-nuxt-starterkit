@@ -56,7 +56,7 @@ async function onPick(e: Event) {
 </script>
 
 <template>
-  <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
+  <div class="rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
     <div class="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
       <!-- Avatar with upload affordance -->
       <div class="relative h-20 w-20 shrink-0">

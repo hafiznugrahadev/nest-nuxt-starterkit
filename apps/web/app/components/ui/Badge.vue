@@ -12,6 +12,11 @@ const badgeVariants = cva(
         destructive: 'border-transparent bg-destructive text-destructive-foreground',
         outline: 'text-foreground',
         muted: 'border-transparent bg-muted text-muted-foreground',
+        // Polygon status pills: tinted surface + status ink. warning-foreground
+        // is ink (#1f1f1f) — amber text on amber tint fails contrast.
+        success: 'border-transparent bg-success/10 text-success',
+        warning: 'border-transparent bg-warning/15 text-warning-foreground',
+        info: 'border-transparent bg-info/10 text-info',
       },
     },
     defaultVariants: { variant: 'default' },

@@ -38,8 +38,9 @@ const tags = computed({
       v-model="tags"
       :class="
         cn(
-          'flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm shadow-sm focus-within:ring-2 focus-within:ring-ring',
-          errorMessage && 'border-destructive focus-within:ring-destructive',
+          'flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-lg border border-input bg-background px-3 py-1.5 text-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20',
+          errorMessage &&
+            'border-destructive focus-within:border-destructive focus-within:ring-destructive/20',
         )
       "
     >

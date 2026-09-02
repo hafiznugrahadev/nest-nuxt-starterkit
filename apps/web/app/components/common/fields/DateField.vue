@@ -27,8 +27,8 @@ const { value, errorMessage } = useField<string>(toRef(props, 'name'));
       :max="max"
       :class="
         cn(
-          'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          errorMessage && 'border-destructive focus-visible:ring-destructive',
+          'flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20',
+          errorMessage && 'border-destructive focus:border-destructive focus:ring-destructive/20',
         )
       "
     />

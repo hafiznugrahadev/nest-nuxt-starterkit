@@ -103,7 +103,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
           <input
             v-model="search"
             :placeholder="$t('users.search')"
-            class="h-10 w-full rounded-lg border border-border bg-transparent pl-9 pr-3 text-sm text-foreground shadow-theme-xs placeholder:text-muted-foreground focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10"
+            class="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
         <!-- Role filter as multi-select tags (server-side; API is source of truth) -->
@@ -113,7 +113,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
             :class="[
               'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
               selectedRoles.length === 0
-                ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15'
+                ? 'border-transparent bg-sidebar-accent font-semibold text-sidebar-accent-foreground'
                 : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground',
             ]"
             @click="clearRoles"
@@ -127,7 +127,7 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
             :class="[
               'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
               selectedRoles.includes(opt.value)
-                ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/15'
+                ? 'border-transparent bg-sidebar-accent font-semibold text-sidebar-accent-foreground'
                 : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground',
             ]"
             @click="toggleRole(opt.value)"
@@ -155,35 +155,29 @@ const joined = (iso: string) => new Date(iso).toLocaleDateString('id-ID');
       <table class="min-w-full">
         <thead>
           <tr class="border-y border-border">
-            <th
-              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
-            >
+            <th class="px-5 py-3 text-left text-xs font-medium text-muted-foreground">
               {{ $t('users.columns.user') }}
             </th>
-            <th
-              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
-            >
+            <th class="px-5 py-3 text-left text-xs font-medium text-muted-foreground">
               {{ $t('users.columns.roles') }}
             </th>
-            <th
-              class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground"
-            >
+            <th class="px-5 py-3 text-left text-xs font-medium text-muted-foreground">
               {{ $t('users.columns.joined') }}
             </th>
             <th
               v-if="canManage"
-              class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground"
+              class="px-5 py-3 text-right text-xs font-medium text-muted-foreground"
             >
               {{ $t('users.columns.action') }}
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
-          <tr v-for="u in rows" :key="u.id" class="transition-colors hover:bg-muted/40">
+          <tr v-for="u in rows" :key="u.id" class="transition-colors hover:bg-muted/50">
             <td class="px-5 py-4">
               <div class="flex items-center gap-3">
                 <div
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-600"
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary"
                 >
                   {{ initials(u.name) }}
                 </div>

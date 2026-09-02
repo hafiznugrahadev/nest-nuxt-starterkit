@@ -33,7 +33,7 @@ function clear() {
     <div
       :class="
         cn(
-          'flex h-9 w-full items-center overflow-hidden rounded-md border border-input bg-background text-sm shadow-sm',
+          'flex h-9 w-full items-center overflow-hidden rounded-lg border border-input bg-background text-sm transition-colors',
           errorMessage && 'border-destructive',
         )
       "

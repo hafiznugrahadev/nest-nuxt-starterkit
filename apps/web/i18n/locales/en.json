@@ -68,6 +68,7 @@
     "retry": "Retry"
   },
   "home": {
+    "eyebrow": "NestJS + Nuxt Starter Kit",
     "description": "A NestJS + Nuxt monorepo starter kit — authentication, role-based access, a users datatable, and reusable components to build on.",
     "goToDashboard": "Go to dashboard",
     "signIn": "Sign in",

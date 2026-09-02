@@ -35,7 +35,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="rounded-2xl border border-border bg-card p-5 shadow-theme-xs sm:p-6">
+  <div class="rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
     <div class="mb-5 flex items-center justify-between gap-3">
       <h3 class="text-base font-semibold text-foreground">
         {{ $t('profile.personalInfo.title') }}

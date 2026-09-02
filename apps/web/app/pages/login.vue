@@ -125,12 +125,11 @@ const notImplemented = (provider: string) =>
 
       <!-- Keep me logged in + forgot password -->
       <div class="flex items-center justify-between">
-        <label class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-          <input
-            v-model="keepLoggedIn"
-            type="checkbox"
-            class="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
-          />
+        <label
+          for="keep-logged-in"
+          class="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground"
+        >
+          <Checkbox id="keep-logged-in" v-model:checked="keepLoggedIn" />
           {{ $t('auth.keepLoggedIn') }}
         </label>
         <NuxtLink to="/forgot-password" class="text-sm font-medium text-primary hover:underline">
